@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import UserMenu from './auth/UserMenu';
+import NotificationBell from './notifications/NotificationBell';
 
 /**
  * Header Component - Airbnb Navigation Bar con autenticación integrada
@@ -91,8 +92,11 @@ export default function Header() {
 
             {/* Authentication Section */}
             {isAuthenticated ? (
-              // Usuario autenticado - Mostrar UserMenu
-              <UserMenu />
+              // Usuario autenticado - Mostrar Notificaciones + UserMenu
+              <div className="flex items-center space-x-2">
+                <NotificationBell />
+                <UserMenu />
+              </div>
             ) : (
               // Usuario no autenticado - Mostrar enlaces a páginas
               <div className="flex items-center space-x-2">

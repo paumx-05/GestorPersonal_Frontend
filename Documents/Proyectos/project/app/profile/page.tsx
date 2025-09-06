@@ -20,6 +20,10 @@ import {
   Shield,
   CreditCard
 } from 'lucide-react';
+import ProfileNotificationSettings from '@/components/profile/ProfileNotificationSettings';
+import ProfileEditForm from '@/components/profile/ProfileEditForm';
+import AvatarUploader from '@/components/profile/AvatarUploader';
+import ChangePasswordForm from '@/components/profile/ChangePasswordForm';
 
 /**
  * Profile Page - Página de perfil del usuario
@@ -29,6 +33,8 @@ import {
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const avatarOverride = typeof window !== 'undefined' ? localStorage.getItem('profile_avatar_override') : null;
+  const currentAvatar = avatarOverride || user?.avatar;
 
   // Redirigir si no está autenticado
   useEffect(() => {
@@ -41,6 +47,16 @@ export default function ProfilePage() {
     await logout();
     router.push('/');
   };
+
+  // Refrescar avatar cuando se actualice desde el uploader
+  useEffect(() => {
+    const handler = (e: Event) => {
+      // No necesitamos hacer nada aquí, el render leerá de localStorage
+      // Forzar re-render con un no-op setState si fuera necesario (no aquí)
+    };
+    window.addEventListener('profile:avatarUpdated', handler);
+    return () => window.removeEventListener('profile:avatarUpdated', handler);
+  }, []);
 
   const getUserInitials = (name: string) => {
     return name
@@ -96,7 +112,7 @@ export default function ProfilePage() {
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={currentAvatar} alt={user.name} />
                     <AvatarFallback className="bg-[#FF385C] text-white text-xl">
                       {getUserInitials(user.name)}
                     </AvatarFallback>
@@ -177,6 +193,16 @@ export default function ProfilePage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Profile customization */}
+            <div className="space-y-6">
+              <ProfileEditForm />
+              <AvatarUploader />
+              <ChangePasswordForm />
+            </div>
+
+            {/* Notification Settings */}
+            <ProfileNotificationSettings />
 
             {/* Activity */}
             <Card className="bg-slate-800 border-slate-700">

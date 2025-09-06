@@ -69,13 +69,13 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+      <div className="text-center">
             <div className="flex justify-center mb-6">
               <Sparkles className="h-16 w-16 text-[#FF385C]" />
             </div>
             <h1 className="text-5xl font-bold text-white mb-6">
               Sobre Airbnb Luxury
-            </h1>
+        </h1>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
               Somos más que una plataforma de alojamiento. Somos creadores de experiencias únicas 
               que conectan viajeros con propiedades excepcionales y anfitriones apasionados por la hospitalidad.

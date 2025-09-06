@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Jost } from 'next/font/google';
 import { AuthProvider } from '@/context/AuthContext';
+import { NotificationsProvider } from '@/context/NotificationsContext';
 
 const jost = Jost({ 
   subsets: ['latin'],
@@ -23,7 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jost.variable} font-jost antialiased`}>
         <AuthProvider>
-          {children}
+          <NotificationsProvider>
+            {children}
+          </NotificationsProvider>
         </AuthProvider>
       </body>
     </html>
