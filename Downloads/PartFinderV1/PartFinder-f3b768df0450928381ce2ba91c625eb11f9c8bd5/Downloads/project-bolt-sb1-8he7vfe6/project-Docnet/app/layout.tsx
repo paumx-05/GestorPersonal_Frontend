@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${dmSans.variable} font-sans`}>{children}</body>
+      <body className={`${dmSans.variable} font-sans bg-gray-900 text-gray-200`}>{children}</body>
     </html>
   );
 }

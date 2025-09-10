@@ -19,3 +19,4 @@ export function AuthLayout({ title, cardClassName = 'max-w-sm', children }: Auth
     </div>
   );
 }
+
