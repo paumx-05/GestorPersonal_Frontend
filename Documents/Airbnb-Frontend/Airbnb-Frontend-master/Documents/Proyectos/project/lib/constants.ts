@@ -7,8 +7,8 @@
 export const COLORS = {
   primary: '#FF385C',
   primaryHover: '#E31C5F',
-  background: 'bg-slate-800/95',
-  border: 'border-slate-700/50',
+  background: 'bg-gray-800',
+  border: 'border-gray-700',
   text: {
     primary: 'text-white',
     secondary: 'text-slate-300',
