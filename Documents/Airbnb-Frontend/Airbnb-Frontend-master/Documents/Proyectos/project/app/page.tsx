@@ -21,6 +21,7 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       {/* Offer TopBar */}
       <OfferTopBar 
+        emoji={true}
         discount={45}
         remainingSpots={15}
         timeLimit={120}

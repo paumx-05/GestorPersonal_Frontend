@@ -1,4 +1,7 @@
+'use client';
+
 import { Heart, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 /**
  * Property Card Component - Card de propiedad siguiendo diseño de referencia
@@ -27,9 +30,15 @@ export default function PropertyCard({
   guests,
   description
 }: PropertyCardProps) {
+  const router = useRouter();
+
+  // Función para navegar al detalle de la propiedad
+  const handleCardClick = () => {
+    router.push(`/detail/${id}`);
+  };
 
   return (
-    <div className="group cursor-pointer">
+    <div className="group cursor-pointer" onClick={handleCardClick}>
       {/* Image Container */}
       <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
         <img
@@ -40,7 +49,14 @@ export default function PropertyCard({
         />
         
         {/* Wishlist button */}
-        <button className="absolute top-3 right-3 p-2 rounded-full hover:scale-110 transition-transform duration-200">
+        <button 
+          className="absolute top-3 right-3 p-2 rounded-full hover:scale-110 transition-transform duration-200"
+          onClick={(e) => {
+            e.stopPropagation(); // Evitar que se active la navegación
+            // TODO: Implementar funcionalidad de wishlist
+            console.log('Añadir a favoritos:', id);
+          }}
+        >
           <Heart className="h-5 w-5 text-white drop-shadow-lg hover:fill-[#FF385C] hover:text-[#FF385C] transition-colors duration-200" />
         </button>
 

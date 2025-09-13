@@ -5,6 +5,7 @@ import { X, Clock, Users, Zap } from 'lucide-react';
 
 interface OfferTopBarProps {
   discount?: number;
+  emoji?: boolean;
   remainingSpots?: number;
   timeLimit?: number; // minutos
   offerText?: string;
@@ -17,6 +18,7 @@ interface OfferTopBarProps {
  */
 export default function OfferTopBar({
   discount = 45,
+  emoji = false,
   remainingSpots = 15,
   timeLimit = 120, // 2 horas por defecto
   offerText = "¡Oferta Flash! Reserva ahora y ahorra",
@@ -59,6 +61,7 @@ export default function OfferTopBar({
   if (!isVisible) return null;
 
   return (
+ 
     <div className="bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white relative overflow-hidden">
       {/* Animación de fondo */}
       <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-transparent to-orange-500/20 animate-pulse"></div>
@@ -74,6 +77,7 @@ export default function OfferTopBar({
             <div className={`flex-shrink-0 ${animate ? 'animate-bounce' : ''}`}>
               <Zap className="h-5 w-5 text-yellow-300 fill-current" />
             </div>
+
             
             {/* Texto de la oferta */}
             <div className="flex items-center space-x-2 text-sm sm:text-base font-medium">
@@ -83,6 +87,7 @@ export default function OfferTopBar({
               </span>
               <span className="hidden md:inline">en tu próxima reserva</span>
             </div>
+            
             
             {/* Contador de personas restantes */}
             <div className="flex items-center space-x-1 bg-white/20 rounded-full px-3 py-1">
@@ -110,7 +115,9 @@ export default function OfferTopBar({
               <span className="hidden sm:inline">¡Reservar Ahora!</span>
               <span className="sm:hidden">¡Reservar!</span>
             </button>
-
+               {/* Icono de emoji */}
+           { (emoji) ?  <> 😁</> : <>😢</>}
+           
             {/* Botón cerrar */}
             <button
               onClick={handleClose}

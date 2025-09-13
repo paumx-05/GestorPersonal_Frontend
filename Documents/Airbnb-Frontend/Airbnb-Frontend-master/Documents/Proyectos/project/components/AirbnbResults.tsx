@@ -1,13 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { type AirbnbProperty } from '@/lib/mockData';
 import { useSearch } from '@/context/SearchContext';
 
 // Componente para mostrar una tarjeta de propiedad individual
 const PropertyCard = ({ property }: { property: AirbnbProperty }) => {
+  const router = useRouter();
+
+  // Función para navegar al detalle de la propiedad
+  const handleCardClick = () => {
+    router.push(`/detail/${property.id}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+    <div 
+      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={handleCardClick}
+    >
       {/* Imagen de la propiedad */}
       <div className="relative h-48">
         <img
