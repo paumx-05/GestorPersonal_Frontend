@@ -14,8 +14,11 @@ export function middleware(request: NextRequest) {
   // Rutas de autenticación que no deben ser accesibles si ya está logueado
   const authRoutes = ['/login', '/register'];
   
-  // Obtener token de las cookies o headers
+  // Obtener token de las cookies
   const token = request.cookies.get('airbnb_auth_token')?.value;
+  
+  console.log('🔍 [Middleware] Verificando ruta:', pathname);
+  console.log('🔍 [Middleware] Token encontrado:', token ? 'SÍ' : 'NO');
   
   // Verificar si la ruta actual es protegida
   const isProtectedRoute = protectedRoutes.some(route => 
@@ -27,8 +30,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
   
+  console.log('🔍 [Middleware] Es ruta protegida:', isProtectedRoute);
+  console.log('🔍 [Middleware] Es ruta de auth:', isAuthRoute);
+  
   // Si es una ruta protegida y no hay token, redirigir al login
   if (isProtectedRoute && !token) {
+    console.log('❌ [Middleware] Redirigiendo a login - no hay token');
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
@@ -36,9 +43,11 @@ export function middleware(request: NextRequest) {
   
   // Si es una ruta de auth y ya hay token, redirigir al home
   if (isAuthRoute && token) {
+    console.log('✅ [Middleware] Redirigiendo a home - ya autenticado');
     return NextResponse.redirect(new URL('/', request.url));
   }
   
+  console.log('✅ [Middleware] Permitiendo acceso a:', pathname);
   return NextResponse.next();
 }
 

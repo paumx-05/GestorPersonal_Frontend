@@ -24,10 +24,16 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
     e.preventDefault();
     clearError();
     
+    console.log('🔍 [LoginForm] Enviando credenciales:', {
+      email: formData.email,
+      password: formData.password
+    });
+    
     try {
       await login(formData.email, formData.password);
       onSuccess();
     } catch (error) {
+      console.log('💥 [LoginForm] Error en login:', error);
       // Error handling is managed by the context
     }
   };
@@ -41,8 +47,8 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
   const fillDemoData = () => {
     setFormData({
-      email: 'demo@airbnb.com',
-      password: '123456'
+      email: 'admin@demo1.com',
+      password: 'demo1234'
     });
   };
 

@@ -60,7 +60,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         {/* Demo Credentials Info */}
         <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
           <p className="text-xs text-slate-400 text-center">
-            <strong>Demo:</strong> usa demo@airbnb.com con cualquier contraseña
+            <strong>Demo:</strong> usa admin@demo1.com / demo1234
           </p>
         </div>
       </DialogContent>

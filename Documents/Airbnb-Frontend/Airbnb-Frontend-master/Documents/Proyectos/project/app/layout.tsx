@@ -5,6 +5,10 @@ import { AuthProvider } from '@/context/AuthContext';
 import { NotificationsProvider } from '@/context/NotificationsContext';
 import { SearchProvider } from '@/context/SearchContext';
 import { ReservationCartProvider } from '@/context/ReservationCartContext';
+import { TokenRefreshProvider } from '@/components/auth/TokenRefreshProvider';
+
+// Importar el interceptor de renovación automática de tokens
+import '@/lib/api/authInterceptor';
 
 const jost = Jost({ 
   subsets: ['latin'],
@@ -26,13 +30,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jost.variable} font-jost antialiased`}>
         <AuthProvider>
-          <NotificationsProvider>
-            <SearchProvider>
-              <ReservationCartProvider>
-                {children}
-              </ReservationCartProvider>
-            </SearchProvider>
-          </NotificationsProvider>
+          <TokenRefreshProvider>
+            <NotificationsProvider>
+              <SearchProvider>
+                <ReservationCartProvider>
+                  {children}
+                </ReservationCartProvider>
+              </SearchProvider>
+            </NotificationsProvider>
+          </TokenRefreshProvider>
         </AuthProvider>
       </body>
     </html>

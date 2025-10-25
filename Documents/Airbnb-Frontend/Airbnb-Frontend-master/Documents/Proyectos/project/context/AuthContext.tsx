@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { User, AuthResponse, authMock, tokenStorage } from '@/lib/auth-mock';
+import { User, AuthResponse, authService, tokenStorage } from '@/lib/api/auth';
 
 // Types
 interface AuthState {
@@ -15,6 +15,8 @@ interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
+  getProfile: () => Promise<void>;
+  refreshToken: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -84,24 +86,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Verificar token al cargar la aplicación
+  // Verificar sesión al cargar la aplicación usando la nueva lógica
   useEffect(() => {
     const checkAuth = async () => {
-      const token = tokenStorage.get();
-      if (token) {
-        dispatch({ type: 'AUTH_START' });
-        try {
-          const response = await authMock.verifyToken(token);
-          if (response.success && response.user) {
-            dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
-          } else {
-            tokenStorage.remove();
-            dispatch({ type: 'AUTH_LOGOUT' });
-          }
-        } catch (error) {
-          tokenStorage.remove();
+      console.log('🔍 [AuthContext] Verificando autenticación al cargar...');
+      
+      try {
+        // Usar la nueva función checkAuthStatus recomendada por el backend
+        const user = await authService.checkAuthStatus();
+        
+        if (user) {
+          console.log('✅ [AuthContext] Usuario autenticado:', user.name);
+          dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        } else {
+          console.log('🔍 [AuthContext] Usuario no autenticado');
           dispatch({ type: 'AUTH_LOGOUT' });
         }
+      } catch (error) {
+        console.log('💥 [AuthContext] Error verificando autenticación:', error);
+        dispatch({ type: 'AUTH_LOGOUT' });
       }
     };
 
@@ -109,17 +112,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
+    console.log('🔍 [AuthContext] Iniciando login para:', email);
     dispatch({ type: 'AUTH_START' });
     try {
-      const response: AuthResponse = await authMock.login(email, password);
+      const response: AuthResponse = await authService.login(email, password);
+      console.log('🔍 [AuthContext] Respuesta COMPLETA del backend:', JSON.stringify(response, null, 2));
       
-      if (response.success && response.user && response.token) {
-        tokenStorage.set(response.token);
-        dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+      // El backend devuelve los datos dentro de un objeto 'data'
+      const user = response.data?.user || response.user;
+      const token = response.data?.token || response.token;
+      
+      if (response.success && user && token) {
+        console.log('✅ [AuthContext] Login exitoso, token y usuario guardados automáticamente');
+        console.log('👤 [AuthContext] Usuario recibido:', user);
+        
+        // El token y usuario ya se guardaron en authService.login()
+        // Solo actualizar el estado del contexto
+        dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        console.log('✅ [AuthContext] Estado actualizado - isAuthenticated:', true);
       } else {
+        console.log('❌ [AuthContext] Login falló - Análisis detallado:');
+        console.log('  - response.success:', response.success);
+        console.log('  - response.data:', response.data);
+        console.log('  - user:', user);
+        console.log('  - token:', token);
+        console.log('  - response.message:', response.message);
+        
         dispatch({ type: 'AUTH_ERROR', payload: response.message || 'Error en el login' });
       }
     } catch (error) {
+      console.log('💥 [AuthContext] Error en login:', error);
       dispatch({ type: 'AUTH_ERROR', payload: 'Error de conexión' });
     }
   };
@@ -127,15 +149,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string, name: string): Promise<void> => {
     dispatch({ type: 'AUTH_START' });
     try {
-      const response: AuthResponse = await authMock.register(email, password, name);
+      console.log('🔍 [AuthContext] Iniciando registro con:', { email, name });
+      const response: AuthResponse = await authService.register(email, password, name);
+      console.log('🔍 [AuthContext] Respuesta del backend:', response);
       
-      if (response.success && response.user && response.token) {
-        tokenStorage.set(response.token);
-        dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+      // El backend devuelve los datos dentro de un objeto 'data'
+      const user = response.data?.user || response.user;
+      const token = response.data?.token || response.token;
+      
+      if (response.success && user && token) {
+        console.log('✅ [AuthContext] Registro exitoso, token y usuario guardados automáticamente');
+        
+        // El token y usuario ya se guardaron en authService.register()
+        // Solo actualizar el estado del contexto
+        dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        console.log('✅ [AuthContext] Estado actualizado - isAuthenticated:', true);
       } else {
+        console.log('❌ [AuthContext] Registro falló:', {
+          success: response.success,
+          data: response.data,
+          hasUser: !!user,
+          hasToken: !!token,
+          message: response.message
+        });
         dispatch({ type: 'AUTH_ERROR', payload: response.message || 'Error en el registro' });
       }
     } catch (error) {
+      console.log('💥 [AuthContext] Error en registro:', error);
       dispatch({ type: 'AUTH_ERROR', payload: 'Error de conexión' });
     }
   };
@@ -143,12 +183,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async (): Promise<void> => {
     dispatch({ type: 'AUTH_START' });
     try {
-      await authMock.logout();
-      tokenStorage.remove();
+      // authService.logout() ya maneja la limpieza completa según recomendaciones
+      await authService.logout();
       dispatch({ type: 'AUTH_LOGOUT' });
+      console.log('✅ [AuthContext] Logout completado correctamente');
     } catch (error) {
       // Incluso si falla el logout en el servidor, limpiamos localmente
-      tokenStorage.remove();
+      console.log('💥 [AuthContext] Error en logout, limpiando localmente:', error);
+      dispatch({ type: 'AUTH_LOGOUT' });
+    }
+  };
+
+  const getProfile = async (): Promise<void> => {
+    dispatch({ type: 'AUTH_START' });
+    try {
+      const response: AuthResponse = await authService.getProfile();
+      
+      if (response.success && response.user) {
+        dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+      } else {
+        dispatch({ type: 'AUTH_ERROR', payload: response.message || 'Error al obtener perfil' });
+      }
+    } catch (error) {
+      dispatch({ type: 'AUTH_ERROR', payload: 'Error de conexión' });
+    }
+  };
+
+  const refreshToken = async (): Promise<void> => {
+    try {
+      console.log('🔄 [AuthContext] Renovando token...');
+      const response = await authService.refreshToken();
+      
+      if (response.success) {
+        console.log('✅ [AuthContext] Token renovado exitosamente');
+        // El token ya se actualizó en authService.refreshToken()
+        // No necesitamos actualizar el estado del usuario
+      } else {
+        console.log('❌ [AuthContext] Error renovando token:', response.message);
+        // Si no se puede renovar, hacer logout
+        dispatch({ type: 'AUTH_LOGOUT' });
+      }
+    } catch (error) {
+      console.error('💥 [AuthContext] Error renovando token:', error);
       dispatch({ type: 'AUTH_LOGOUT' });
     }
   };
@@ -164,6 +240,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        getProfile,
+        refreshToken,
         clearError,
       }}
     >

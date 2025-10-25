@@ -17,8 +17,11 @@ import Link from 'next/link';
  * Mejorado para legibilidad y mantenimiento
  */
 export default function Header() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { isMenuOpen, toggleMenu, closeMenu } = useMobileMenu();
+
+  // Log temporal para debugging
+  console.log('🔍 [Header] Renderizando con isAuthenticated:', isAuthenticated, 'user:', user?.name);
 
   return (
     <header className={`${COLORS.background} backdrop-blur-md border-b ${COLORS.border} sticky top-0 z-50`}>

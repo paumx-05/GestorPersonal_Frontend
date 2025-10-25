@@ -24,10 +24,16 @@ import {
 } from 'lucide-react';
 
 export default function UserMenu() {
-  const { user, logout, isLoading } = useAuth();
+  const { user, logout, isLoading, isAuthenticated } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  if (!user) return null;
+  // Log temporal para debugging
+  console.log('🔍 [UserMenu] Renderizando con isAuthenticated:', isAuthenticated, 'user:', user?.name);
+
+  if (!user) {
+    console.log('🔍 [UserMenu] No hay usuario, no renderizando');
+    return null;
+  }
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

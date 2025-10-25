@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { authService } from '@/lib/api/auth';
 
 interface ForgotPasswordFormProps {
   onSuccess: () => void;
@@ -34,19 +35,22 @@ export default function ForgotPasswordForm({ onSuccess, onBackToLogin }: ForgotP
     setIsLoading(true);
 
     try {
-      // Simulación de envío de email (mock)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Llamada real al backend
+      const response = await authService.forgotPassword(email);
       
-      // Simular éxito
-      setIsSuccess(true);
-      
-      // Auto-redirect después de 3 segundos
-      setTimeout(() => {
-        onSuccess();
-      }, 3000);
+      if (response.success) {
+        setIsSuccess(true);
+        
+        // Auto-redirect después de 3 segundos
+        setTimeout(() => {
+          onSuccess();
+        }, 3000);
+      } else {
+        setError(response.message || 'Error al enviar el email. Intenta nuevamente.');
+      }
 
     } catch (error) {
-      setError('Error al enviar el email. Intenta nuevamente.');
+      setError('Error de conexión. Verifica tu conexión a internet.');
     } finally {
       setIsLoading(false);
     }
@@ -151,10 +155,10 @@ export default function ForgotPasswordForm({ onSuccess, onBackToLogin }: ForgotP
         </button>
       </div>
 
-      {/* Demo Info */}
+      {/* Backend Info */}
       <div className="mt-6 p-3 bg-slate-700/30 rounded-lg border border-slate-600/50">
         <p className="text-xs text-slate-400 text-center">
-          <strong className="text-slate-300">Mock:</strong> Cualquier email válido simulará el envío exitoso
+          <strong className="text-slate-300">Backend:</strong> Conectado al servidor real de autenticación
         </p>
       </div>
     </form>

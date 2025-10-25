@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import LoginForm from '@/components/auth/LoginForm';
+import DebugRegister from '@/components/auth/DebugRegister';
+import SecretAuthDebugger from '@/components/auth/SecretAuthDebugger';
+import BackendResponseTester from '@/components/auth/BackendResponseTester';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -70,6 +73,47 @@ export default function LoginPage() {
           />
         </div>
 
+        {/* Debug Register Component */}
+        <div className="mt-6">
+          <DebugRegister />
+        </div>
+
+        {/* Backend Response Tester */}
+        <div className="mt-6">
+          <BackendResponseTester />
+        </div>
+
+        {/* SIMPLE TEST BUTTON - MUY VISIBLE */}
+        <div className="mt-6 p-6 bg-red-600 rounded-lg border-2 border-red-500">
+          <h3 className="text-white font-bold text-lg mb-4">🧪 TEST BACKEND</h3>
+          <p className="text-white text-sm mb-4">
+            Click este botón para ver exactamente qué devuelve el backend:
+          </p>
+          <button
+            onClick={async () => {
+              console.log('🧪 [TEST] Probando backend con credenciales del formulario...');
+              try {
+                // Probar con las credenciales que usa el formulario
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: 'admin@demo1.com', password: 'demo1234' })
+                });
+                const data = await response.json();
+                console.log('📥 [TEST] Respuesta del backend:', data);
+                alert(`BACKEND RESPONSE:\n\n${JSON.stringify(data, null, 2)}`);
+              } catch (error) {
+                console.log('💥 [TEST] Error:', error);
+                alert(`ERROR:\n\n${error}`);
+              }
+            }}
+            className="w-full bg-white text-red-600 font-bold py-3 px-4 rounded text-lg hover:bg-gray-100"
+          >
+            🧪 TEST BACKEND NOW
+          </button>
+        </div>
+
+
         {/* Demo Info */}
         <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
           <p className="text-sm text-slate-400 text-center">
@@ -88,6 +132,9 @@ export default function LoginPage() {
           </Link>
         </div>
       </div>
+      
+      {/* Secret Auth Debugger - Solo visible con Ctrl+Shift+D */}
+      <SecretAuthDebugger />
     </div>
   );
 }

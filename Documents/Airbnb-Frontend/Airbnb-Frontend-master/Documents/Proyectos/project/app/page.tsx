@@ -4,6 +4,8 @@ import AirbnbSearchModule from '@/components/AirbnbSearchModule';
 import AirbnbFilters from '@/components/AirbnbFilters';
 import AirbnbResults from '@/components/AirbnbResults';
 import Footer from '@/components/Footer';
+import QuickAuthDebug from '@/components/auth/QuickAuthDebug';
+import Link from 'next/link';
 
 /**
  * Main Landing Page Component - Página principal limpia y funcional
@@ -78,6 +80,30 @@ export default function Home() {
       
       {/* Footer con Información de Contacto */}
       <Footer />
+      
+      {/* Quick Auth Debug - Temporal */}
+      <QuickAuthDebug />
+      
+      {/* Debug Links */}
+      <div className="bg-gray-800 text-white py-4">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm text-gray-300 mb-2">Herramientas de Debug:</p>
+          <div className="space-x-4">
+            <Link 
+              href="/debug-auth" 
+              className="text-blue-400 hover:text-blue-300 underline text-sm"
+            >
+              🔍 Debug de Autenticación
+            </Link>
+            <Link 
+              href="/test-token-refresh" 
+              className="text-green-400 hover:text-green-300 underline text-sm"
+            >
+              🔄 Test Token Refresh
+            </Link>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

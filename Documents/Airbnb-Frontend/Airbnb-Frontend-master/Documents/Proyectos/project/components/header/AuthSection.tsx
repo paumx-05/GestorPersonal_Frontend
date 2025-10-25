@@ -17,8 +17,11 @@ interface AuthSectionProps {
 }
 
 export default function AuthSection({ isMobile = false, onLinkClick }: AuthSectionProps) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { getTotalItems } = useReservationCart();
+
+  // Log temporal para debugging
+  console.log('🔍 [AuthSection] Renderizando con isAuthenticated:', isAuthenticated, 'user:', user?.name);
 
   const handleLogout = async () => {
     try {
