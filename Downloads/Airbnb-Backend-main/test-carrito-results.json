@@ -1,0 +1,208 @@
+{
+  "summary": {
+    "passed": 32,
+    "failed": 1,
+    "total": 33,
+    "successRate": "96.97%"
+  },
+  "tests": [
+    {
+      "name": "GET /api/cart - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:18.960Z"
+    },
+    {
+      "name": "GET /api/cart - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:18.962Z"
+    },
+    {
+      "name": "GET /api/cart - Devuelve estructura de carrito",
+      "passed": false,
+      "details": "Estructura presente",
+      "timestamp": "2025-10-20T19:07:18.962Z"
+    },
+    {
+      "name": "POST /api/cart/add - Responde correctamente",
+      "passed": true,
+      "details": "Status: 201",
+      "timestamp": "2025-10-20T19:07:19.050Z"
+    },
+    {
+      "name": "POST /api/cart/add - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.050Z"
+    },
+    {
+      "name": "POST /api/cart/add - Devuelve item agregado",
+      "passed": true,
+      "details": "Item agregado exitosamente",
+      "timestamp": "2025-10-20T19:07:19.050Z"
+    },
+    {
+      "name": "POST /api/cart/add - Item tiene ID asignado",
+      "passed": true,
+      "details": "ID: 68f68866ca5adf4b1cfb59ba",
+      "timestamp": "2025-10-20T19:07:19.050Z"
+    },
+    {
+      "name": "GET /api/cart/summary - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.083Z"
+    },
+    {
+      "name": "GET /api/cart/summary - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.083Z"
+    },
+    {
+      "name": "GET /api/cart/summary - Devuelve resumen",
+      "passed": true,
+      "details": "Resumen presente",
+      "timestamp": "2025-10-20T19:07:19.083Z"
+    },
+    {
+      "name": "GET /api/cart/summary - Incluye totales",
+      "passed": true,
+      "details": "Campos de totales presentes",
+      "timestamp": "2025-10-20T19:07:19.083Z"
+    },
+    {
+      "name": "GET /api/cart/item/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.088Z"
+    },
+    {
+      "name": "GET /api/cart/item/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.089Z"
+    },
+    {
+      "name": "GET /api/cart/item/:id - Devuelve item",
+      "passed": true,
+      "details": "Item encontrado",
+      "timestamp": "2025-10-20T19:07:19.089Z"
+    },
+    {
+      "name": "PUT /api/cart/update/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.094Z"
+    },
+    {
+      "name": "PUT /api/cart/update/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.094Z"
+    },
+    {
+      "name": "PUT /api/cart/update/:id - Devuelve item actualizado",
+      "passed": true,
+      "details": "Item actualizado",
+      "timestamp": "2025-10-20T19:07:19.094Z"
+    },
+    {
+      "name": "POST /api/cart/check-availability - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.133Z"
+    },
+    {
+      "name": "POST /api/cart/check-availability - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.133Z"
+    },
+    {
+      "name": "POST /api/cart/check-availability - Devuelve disponibilidad",
+      "passed": true,
+      "details": "Información de disponibilidad presente",
+      "timestamp": "2025-10-20T19:07:19.134Z"
+    },
+    {
+      "name": "GET /api/cart/stats - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.138Z"
+    },
+    {
+      "name": "GET /api/cart/stats - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.138Z"
+    },
+    {
+      "name": "GET /api/cart/stats - Devuelve estadísticas",
+      "passed": true,
+      "details": "Estadísticas presentes",
+      "timestamp": "2025-10-20T19:07:19.138Z"
+    },
+    {
+      "name": "DELETE /api/cart/remove/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.144Z"
+    },
+    {
+      "name": "DELETE /api/cart/remove/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.145Z"
+    },
+    {
+      "name": "DELETE /api/cart/remove/:id - Mensaje de confirmación",
+      "passed": true,
+      "details": "Item eliminado del carrito exitosamente",
+      "timestamp": "2025-10-20T19:07:19.145Z"
+    },
+    {
+      "name": "DELETE /api/cart/clear - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T19:07:19.176Z"
+    },
+    {
+      "name": "DELETE /api/cart/clear - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T19:07:19.177Z"
+    },
+    {
+      "name": "DELETE /api/cart/clear - Mensaje de confirmación",
+      "passed": true,
+      "details": "Carrito ya estaba vacío",
+      "timestamp": "2025-10-20T19:07:19.177Z"
+    },
+    {
+      "name": "Conexión a MongoDB",
+      "passed": true,
+      "details": "Conectado exitosamente",
+      "timestamp": "2025-10-20T19:07:19.526Z"
+    },
+    {
+      "name": "Items de carrito en BD",
+      "passed": true,
+      "details": "Total: 0 items",
+      "timestamp": "2025-10-20T19:07:19.754Z"
+    },
+    {
+      "name": "Usuario admin existe",
+      "passed": true,
+      "details": "ID: 68f3f23cbd2b413e50624f4e",
+      "timestamp": "2025-10-20T19:07:19.790Z"
+    },
+    {
+      "name": "Desconexión de MongoDB",
+      "passed": true,
+      "details": "Desconectado exitosamente",
+      "timestamp": "2025-10-20T19:07:19.800Z"
+    }
+  ]
+}

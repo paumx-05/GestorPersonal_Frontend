@@ -1,0 +1,161 @@
+{
+  "timestamp": "2025-10-21T18:29:01.995Z",
+  "totalTests": 9,
+  "passed": 9,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "1. Login de Admin",
+      "status": "PASSED",
+      "details": {
+        "message": "Login exitoso",
+        "userId": "68f3f23cbd2b413e50624f4e"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:02.635Z"
+    },
+    {
+      "name": "2. Obtener Notificaciones",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 0 notificaciones",
+        "count": 0,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:03.687Z"
+    },
+    {
+      "name": "3. Crear Notificación de Prueba",
+      "status": "PASSED",
+      "details": {
+        "message": "Notificación de prueba creada correctamente",
+        "notificationId": "68f7d0f031b141b45242a818",
+        "type": "test",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:05.850Z"
+    },
+    {
+      "name": "4. Marcar Notificación como Leída",
+      "status": "PASSED",
+      "details": {
+        "message": "Notificación marcada como leída correctamente",
+        "notificationId": "68f7d0f031b141b45242a818",
+        "isRead": true,
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:07.812Z"
+    },
+    {
+      "name": "5. Marcar Todas como Leídas",
+      "status": "PASSED",
+      "details": {
+        "message": "Todas las notificaciones marcadas como leídas",
+        "unreadCount": 0,
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:09.802Z"
+    },
+    {
+      "name": "6. Obtener Configuración de Notificaciones",
+      "status": "PASSED",
+      "details": {
+        "message": "Configuración obtenida correctamente",
+        "settings": {
+          "userId": "68f3f23cbd2b413e50624f4e",
+          "emailNotifications": true,
+          "pushNotifications": true,
+          "smsNotifications": false,
+          "marketingEmails": false
+        },
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:10.846Z"
+    },
+    {
+      "name": "7. Actualizar Configuración de Notificaciones",
+      "status": "PASSED",
+      "details": {
+        "message": "Configuración actualizada correctamente",
+        "settings": {
+          "emailNotifications": true,
+          "pushNotifications": true,
+          "smsNotifications": false,
+          "marketingEmails": false
+        },
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:12.796Z"
+    },
+    {
+      "name": "8. Eliminar Notificación",
+      "status": "PASSED",
+      "details": {
+        "message": "Notificación eliminada correctamente",
+        "notificationId": "68f7d0f031b141b45242a818",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:15.246Z"
+    },
+    {
+      "name": "9. Limpiar Todas las Notificaciones",
+      "status": "PASSED",
+      "details": {
+        "message": "Todas las notificaciones eliminadas",
+        "remainingCount": 0,
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:29:18.212Z"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "timestamp": "2025-10-21T19:17:01.247Z",
+  "totalTests": 6,
+  "passed": 4,
+  "failed": 2,
+  "tests": [
+    {
+      "name": "1. Login de Admin",
+      "status": "PASSED",
+      "details": {
+        "message": "Login exitoso",
+        "userId": "68f3f23cbd2b413e50624f4e"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T19:16:52.445Z"
+    },
+    {
+      "name": "2. Obtener Perfil",
+      "status": "PASSED",
+      "details": {
+        "message": "Perfil obtenido correctamente",
+        "userId": "68f3f23cbd2b413e50624f4e",
+        "email": "admin@demo.com",
+        "name": "Admin Actualizado",
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T19:16:53.506Z"
+    },
+    {
+      "name": "3. Actualizar Perfil",
+      "status": "FAILED",
+      "details": {
+        "message": "Perfil actualizado pero no verificado en BD",
+        "updatedFields": {
+          "name": "Admin Actualizado",
+          "bio": "QA Tester Profile",
+          "location": "Test City",
+          "phone": "+1234567890"
+        },
+        "dbVerified": false,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T19:16:55.144Z"
+    },
+    {
+      "name": "4. Cambiar Contraseña",
+      "status": "FAILED",
+      "details": {
+        "error": "Request failed with status code 401"
+      },
+      "headers": {
+        "content-type": "N/A",
+        "x-powered-by": "N/A",
+        "access-control-allow-origin": "N/A"
+      },
+      "timestamp": "2025-10-21T19:16:58.575Z"
+    },
+    {
+      "name": "5. Obtener Configuración",
+      "status": "PASSED",
+      "details": {
+        "message": "Configuración obtenida correctamente",
+        "settings": {},
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T19:16:59.644Z"
+    },
+    {
+      "name": "6. Actualizar Configuración",
+      "status": "PASSED",
+      "details": {
+        "message": "Configuración actualizada y verificada en BD",
+        "settings": {
+          "notifications": {
+            "email": true,
+            "push": false,
+            "sound": true,
+            "marketing": false
+          },
+          "privacy": {
+            "showProfile": true,
+            "showEmail": false
+          },
+          "preferences": {
+            "language": "en",
+            "currency": "USD",
+            "timezone": "America/New_York",
+            "theme": "dark"
+          }
+        },
+        "dbRecord": {
+          "language": "en",
+          "currency": "USD",
+          "theme": "dark",
+          "emailNotifications": true
+        },
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T19:17:01.246Z"
+    }
+  ]
+}

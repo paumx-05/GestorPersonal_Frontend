@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Autenticación - CORS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #FF385C;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #e0314a;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test de Autenticación - CORS</h1>
+        <p>Este formulario prueba los endpoints de login y registro desde el navegador para verificar problemas de CORS.</p>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="admin@airbnb.com" placeholder="admin@airbnb.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" value="Admin1234!" placeholder="Admin1234!">
+        </div>
+        
+        <div class="form-group">
+            <label for="name">Nombre (para registro):</label>
+            <input type="text" id="name" value="Usuario Test" placeholder="Usuario Test">
+        </div>
+        
+        <button onclick="testLogin()">🔐 Probar Login</button>
+        <button onclick="testRegister()">📝 Probar Registro</button>
+        <button onclick="clearResults()">🧹 Limpiar</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:5000';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+        
+        function clearResults() {
+            document.getElementById('result').textContent = '';
+        }
+        
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showResult('❌ Por favor, completa email y contraseña', 'error');
+                return;
+            }
+            
+            showResult('🔄 Probando login...', 'info');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Login exitoso!\n👤 Usuario: ${data.data.user.name}\n📧 Email: ${data.data.user.email}\n🔑 Token: ${data.data.token.substring(0, 20)}...`, 'success');
+                } else {
+                    showResult(`❌ Error en login:\nStatus: ${response.status}\nError: ${data.error?.message || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Error de red:\n${error.message}\n\n💡 Posibles causas:\n- Servidor no ejecutándose\n- Problema de CORS\n- URL incorrecta`, 'error');
+            }
+        }
+        
+        async function testRegister() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            
+            if (!email || !password || !name) {
+                showResult('❌ Por favor, completa todos los campos', 'error');
+                return;
+            }
+            
+            showResult('🔄 Probando registro...', 'info');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password, name })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Registro exitoso!\n👤 Usuario: ${data.data.user.name}\n📧 Email: ${data.data.user.email}\n🔑 Token: ${data.data.token.substring(0, 20)}...`, 'success');
+                } else {
+                    showResult(`❌ Error en registro:\nStatus: ${response.status}\nError: ${data.error?.message || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Error de red:\n${error.message}\n\n💡 Posibles causas:\n- Servidor no ejecutándose\n- Problema de CORS\n- URL incorrecta`, 'error');
+            }
+        }
+        
+        // Test automático al cargar la página
+        window.onload = function() {
+            showResult('🚀 Página cargada. Haz clic en "Probar Login" o "Probar Registro" para comenzar.', 'info');
+        };
+    </script>
+</body>
+</html>

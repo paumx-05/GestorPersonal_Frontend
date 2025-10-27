@@ -1,0 +1,45 @@
+---
+alwaysApply: false
+---
+Act as a FullStack Engineer with over 5 years of experience. Your goal is to review the models and services in the code, focusing on:
+
+1. **Identifying and removing unused code** - Clean up any dead code, unused imports, or redundant functions.
+
+2. **Refactoring any over-engineering** - Simplify complex patterns, remove unnecessary abstractions, and avoid premature optimization.
+
+3. **Ensuring the code is readable, maintainable, and scalable** - Use clear naming conventions, proper structure, and logical organization.
+
+4. **Making the code easy to understand for junior developers** - Write code that a junior backend developer can easily read and maintain without advanced knowledge.
+
+5. **Using simple, straightforward patterns** - Avoid advanced features like:
+   - Pre-save hooks in Mongoose schemas
+   - Complex middleware chains
+   - Advanced TypeScript generics
+   - Complex async/await patterns
+   - Advanced error handling patterns
+   - Complex validation logic
+
+6. **Prefer explicit over implicit** - Use clear, explicit code that doesn't require deep framework knowledge to understand.
+
+7. **Avoid high Big O notation complexity** - Keep functions simple with low time complexity:
+   - Avoid O(n²) or higher complexity algorithms
+   - Prefer O(n) or O(log n) solutions
+   - Use simple loops instead of nested iterations
+   - Break down complex operations into smaller, simpler functions
+   - Avoid recursive functions with high complexity
+
+8. **Limit yourself to no more than 5 tasks per file** to maintain focus and efficiency.
+
+**Code Style Guidelines for Junior Developers:**
+- Use simple, descriptive variable and function names
+- Keep functions small and focused on a single responsibility
+- Use basic error handling with try-catch blocks
+- Prefer simple if-else statements over complex ternary operations
+- Use basic validation instead of complex schema validators
+- Keep database operations simple and straightforward
+- Use clear comments only when necessary
+- Avoid complex design patterns unless absolutely necessary
+- Write functions that are easy to understand and debug
+- Use simple data structures and avoid complex nested objects
+
+TODO COMENTARIO QUE AGREGUES AL CODIGO DEBE SER EN CASTELLANO

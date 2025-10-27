@@ -1,0 +1,184 @@
+{
+  "timestamp": "2025-10-23T18:45:26.931Z",
+  "totalTests": 14,
+  "passed": 14,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Registrar Usuario de Prueba",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGZhNzdjODZiY2NmYTExZDA4MmM5NmMiLCJlbWFpbCI6InRlc3QucmV2aWV3cy4xNzYxMjQ1MTI2OTMxQGRlbW8uY29tIiwiaWF0IjoxNzYxMjQ1MTI4fQ.FfmGbiMMBkEyhRq7JK0vIpa1WLdEUfc30B0GVIFWRdY",
+      "details": {
+        "status": 201,
+        "hasToken": true,
+        "userId": "68fa77c86bccfa11d082c96c"
+      },
+      "timestamp": "2025-10-23T18:45:28.725Z"
+    },
+    {
+      "name": "GET /api/reviews/property/:id",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "reviewsCount": 1,
+        "isArray": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T18:45:28.790Z"
+    },
+    {
+      "name": "GET /api/reviews/property/:id/stats",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasExpectedFields": true,
+        "data": {
+          "propertyId": "65f0cc30cc30cc30cc30cc30",
+          "totalReviews": 1,
+          "averageRating": 5,
+          "categoryAverages": {
+            "cleanliness": 5,
+            "communication": 5,
+            "checkin": 5,
+            "accuracy": 5,
+            "location": 5,
+            "value": 5
+          }
+        }
+      },
+      "timestamp": "2025-10-23T18:45:28.822Z"
+    },
+    {
+      "name": "POST /api/reviews",
+      "passed": true,
+      "details": {
+        "status": 201,
+        "reviewId": "68fa77c86bccfa11d082c970",
+        "hasData": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        },
+        "dbVerification": true
+      },
+      "timestamp": "2025-10-23T18:45:28.893Z"
+    },
+    {
+      "name": "POST /api/reviews (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T18:45:28.900Z"
+    },
+    {
+      "name": "POST /api/reviews (datos inválidos)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "propertyId, rating y comment son requeridos"
+      },
+      "timestamp": "2025-10-23T18:45:28.906Z"
+    },
+    {
+      "name": "GET /api/reviews/user/:id",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "reviewsCount": 1,
+        "includesTestReview": true
+      },
+      "timestamp": "2025-10-23T18:45:28.941Z"
+    },
+    {
+      "name": "PUT /api/reviews/:id",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "ratingUpdated": true,
+        "commentUpdated": true
+      },
+      "timestamp": "2025-10-23T18:45:29.048Z"
+    },
+    {
+      "name": "PUT /api/reviews/:id (rating inválido)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "Rating debe estar entre 1 y 5"
+      },
+      "timestamp": "2025-10-23T18:45:29.090Z"
+    },
+    {
+      "name": "GET /api/reviews/stats",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasData": true,
+        "data": {}
+      },
+      "timestamp": "2025-10-23T18:45:29.097Z"
+    },
+    {
+      "name": "Verificar Estructura de Datos de Review",
+      "passed": true,
+      "details": {
+        "hasAllRequired": true,
+        "missingRequired": [],
+        "presentRecommended": [
+          "createdAt",
+          "updatedAt"
+        ],
+        "recommendedFieldsCount": "2/2",
+        "totalFields": 10
+      },
+      "timestamp": "2025-10-23T18:45:29.129Z"
+    },
+    {
+      "name": "Verificar Consistencia con BD",
+      "passed": true,
+      "details": {
+        "ratingMatches": true,
+        "commentMatches": true,
+        "propertyIdMatches": true,
+        "apiData": {
+          "rating": 4,
+          "comment": "Muy bueno, pero podría mejorar",
+          "propertyId": "65f0cc30cc30cc30cc30cc30"
+        },
+        "dbData": {
+          "rating": 4,
+          "comment": "Muy bueno, pero podría mejorar",
+          "propertyId": "65f0cc30cc30cc30cc30cc30"
+        }
+      },
+      "timestamp": "2025-10-23T18:45:29.189Z"
+    },
+    {
+      "name": "DELETE /api/reviews/:id",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "deletedFromDB": true
+      },
+      "timestamp": "2025-10-23T18:45:29.284Z"
+    },
+    {
+      "name": "Verificar Headers HTTP",
+      "passed": true,
+      "details": {
+        "hasCORS": true,
+        "isJSON": true,
+        "corsValue": "*",
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2025-10-23T18:45:29.317Z"
+    }
+  ]
+}

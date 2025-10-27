@@ -1,0 +1,113 @@
+{
+  "timestamp": "2025-10-20T18:37:54.127Z",
+  "summary": {
+    "passed": 12,
+    "warnings": 0,
+    "failed": 0,
+    "total": 12,
+    "successRate": "100.00%"
+  },
+  "headers": [
+    {
+      "name": "x-powered-by",
+      "status": "present",
+      "expected": "Express/Node.js",
+      "actual": "Express/Node.js"
+    },
+    {
+      "name": "x-content-type-options",
+      "status": "present",
+      "expected": "nosniff",
+      "actual": "nosniff"
+    },
+    {
+      "name": "x-frame-options",
+      "status": "present",
+      "expected": "DENY",
+      "actual": "DENY"
+    },
+    {
+      "name": "x-xss-protection",
+      "status": "present",
+      "expected": "1; mode=block",
+      "actual": "1; mode=block"
+    },
+    {
+      "name": "referrer-policy",
+      "status": "present",
+      "expected": "strict-origin-when-cross-origin",
+      "actual": "strict-origin-when-cross-origin"
+    },
+    {
+      "name": "permissions-policy",
+      "status": "present",
+      "expected": "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()",
+      "actual": "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+    },
+    {
+      "name": "content-security-policy",
+      "status": "present",
+      "expected": "/default-src 'self'/",
+      "actual": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    },
+    {
+      "name": "x-dns-prefetch-control",
+      "status": "present",
+      "expected": "off",
+      "actual": "off"
+    },
+    {
+      "name": "x-download-options",
+      "status": "present",
+      "expected": "noopen",
+      "actual": "noopen"
+    },
+    {
+      "name": "cache-control",
+      "status": "present",
+      "expected": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "actual": "no-store, no-cache, must-revalidate, proxy-revalidate"
+    },
+    {
+      "name": "pragma",
+      "status": "present",
+      "expected": "no-cache",
+      "actual": "no-cache"
+    },
+    {
+      "name": "expires",
+      "status": "present",
+      "expected": "0",
+      "actual": "0"
+    }
+  ],
+  "allHeaders": {
+    "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    "cross-origin-opener-policy": "same-origin",
+    "cross-origin-resource-policy": "same-origin",
+    "origin-agent-cluster": "?1",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "x-content-type-options": "nosniff",
+    "x-dns-prefetch-control": "off",
+    "x-download-options": "noopen",
+    "x-frame-options": "DENY",
+    "x-permitted-cross-domain-policies": "none",
+    "x-xss-protection": "1; mode=block",
+    "x-powered-by": "Express/Node.js",
+    "permissions-policy": "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()",
+    "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    "pragma": "no-cache",
+    "expires": "0",
+    "access-control-allow-origin": "*",
+    "x-ratelimit-limit": "2000",
+    "x-ratelimit-remaining": "1999",
+    "x-ratelimit-reset": "2025-10-20T18:52:54.112Z",
+    "content-type": "application/json; charset=utf-8",
+    "content-length": "3578",
+    "etag": "W/\"dfa-T7v3l9j3GvQRJHymdUQZGoPpz5E\"",
+    "date": "Mon, 20 Oct 2025 18:37:54 GMT",
+    "connection": "keep-alive",
+    "keep-alive": "timeout=5"
+  }
+}

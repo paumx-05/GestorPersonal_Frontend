@@ -1,0 +1,183 @@
+{
+  "summary": {
+    "passed": 22,
+    "failed": 6,
+    "total": 28,
+    "successRate": "78.57%"
+  },
+  "tests": [
+    {
+      "name": "GET / - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:30:18.750Z"
+    },
+    {
+      "name": "GET / - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:18.752Z"
+    },
+    {
+      "name": "GET / - Contiene información de la API",
+      "passed": "🏠 Airbnb Backend API - Sistema Completo",
+      "details": "🏠 Airbnb Backend API - Sistema Completo",
+      "timestamp": "2025-10-20T18:30:18.752Z"
+    },
+    {
+      "name": "POST /api/auth/login - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:30:19.331Z"
+    },
+    {
+      "name": "POST /api/auth/login - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:19.331Z"
+    },
+    {
+      "name": "POST /api/auth/login - Devuelve token",
+      "passed": true,
+      "details": "Token recibido",
+      "timestamp": "2025-10-20T18:30:19.331Z"
+    },
+    {
+      "name": "POST /api/auth/login - Devuelve datos de usuario",
+      "passed": {
+        "id": "68f3f23cbd2b413e50624f4e",
+        "email": "admin@demo.com",
+        "name": "Admin",
+        "avatar": "https://i.pravatar.cc/150?img=11"
+      },
+      "details": "admin@demo.com",
+      "timestamp": "2025-10-20T18:30:19.331Z"
+    },
+    {
+      "name": "POST /api/auth/login - Usuario es admin",
+      "passed": true,
+      "details": "Role: N/A, Email: admin@demo.com",
+      "timestamp": "2025-10-20T18:30:19.332Z"
+    },
+    {
+      "name": "GET /api/auth/me - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:30:19.370Z"
+    },
+    {
+      "name": "GET /api/auth/me - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:19.370Z"
+    },
+    {
+      "name": "GET /api/auth/me - Devuelve datos del usuario",
+      "passed": true,
+      "details": "admin@demo.com",
+      "timestamp": "2025-10-20T18:30:19.370Z"
+    },
+    {
+      "name": "GET /api/auth/me - Email correcto",
+      "passed": true,
+      "details": "Email: admin@demo.com",
+      "timestamp": "2025-10-20T18:30:19.370Z"
+    },
+    {
+      "name": "POST /api/auth/register - Responde correctamente",
+      "passed": true,
+      "details": "Status: 201",
+      "timestamp": "2025-10-20T18:30:20.428Z"
+    },
+    {
+      "name": "POST /api/auth/register - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:20.428Z"
+    },
+    {
+      "name": "POST /api/auth/register - Devuelve token",
+      "passed": true,
+      "details": "Token generado para nuevo usuario",
+      "timestamp": "2025-10-20T18:30:20.428Z"
+    },
+    {
+      "name": "POST /api/auth/register - Devuelve datos de usuario",
+      "passed": true,
+      "details": "test_1760985019371@airbnb.com",
+      "timestamp": "2025-10-20T18:30:20.428Z"
+    },
+    {
+      "name": "POST /api/auth/forgot-password - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:30:23.465Z"
+    },
+    {
+      "name": "POST /api/auth/forgot-password - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:23.465Z"
+    },
+    {
+      "name": "POST /api/auth/forgot-password - Mensaje de confirmación",
+      "passed": true,
+      "details": "Si el email está registrado, recibirás instrucciones para recuperar tu contraseña",
+      "timestamp": "2025-10-20T18:30:23.465Z"
+    },
+    {
+      "name": "POST /api/auth/logout - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:30:23.469Z"
+    },
+    {
+      "name": "POST /api/auth/logout - Encabezados correctos",
+      "passed": false,
+      "details": "Faltan encabezados: x-powered-by",
+      "timestamp": "2025-10-20T18:30:23.469Z"
+    },
+    {
+      "name": "POST /api/auth/logout - Mensaje de confirmación",
+      "passed": true,
+      "details": "Logout exitoso",
+      "timestamp": "2025-10-20T18:30:23.469Z"
+    },
+    {
+      "name": "Conexión a MongoDB",
+      "passed": true,
+      "details": "Conectado exitosamente",
+      "timestamp": "2025-10-20T18:30:24.059Z"
+    },
+    {
+      "name": "Usuario admin existe en BD",
+      "passed": true,
+      "details": "ID: 68f3f23cbd2b413e50624f4e",
+      "timestamp": "2025-10-20T18:30:24.317Z"
+    },
+    {
+      "name": "Usuario admin tiene role correcto",
+      "passed": true,
+      "details": "Role: admin",
+      "timestamp": "2025-10-20T18:30:24.318Z"
+    },
+    {
+      "name": "Usuario admin está activo",
+      "passed": true,
+      "details": "isActive: true",
+      "timestamp": "2025-10-20T18:30:24.318Z"
+    },
+    {
+      "name": "Usuarios en base de datos",
+      "passed": true,
+      "details": "Total usuarios: 5",
+      "timestamp": "2025-10-20T18:30:24.346Z"
+    },
+    {
+      "name": "Desconexión de MongoDB",
+      "passed": true,
+      "details": "Desconectado exitosamente",
+      "timestamp": "2025-10-20T18:30:24.354Z"
+    }
+  ]
+}

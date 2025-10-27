@@ -1,0 +1,153 @@
+{
+  "timestamp": "2025-10-23T18:52:31.696Z",
+  "totalTests": 12,
+  "passed": 12,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "GET /api/search/properties (sin filtros)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "resultsCount": 1,
+        "isArray": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T18:52:32.514Z"
+    },
+    {
+      "name": "GET /api/search/properties (por ubicación)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "location": "Madrid",
+        "resultsCount": 1
+      },
+      "timestamp": "2025-10-23T18:52:32.612Z"
+    },
+    {
+      "name": "GET /api/search/properties (por huéspedes)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "guests": 2,
+        "resultsCount": 1,
+        "allPropertiesValid": true
+      },
+      "timestamp": "2025-10-23T18:52:32.673Z"
+    },
+    {
+      "name": "GET /api/search/properties (rango de precios)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "minPrice": 50,
+        "maxPrice": 200,
+        "resultsCount": 1,
+        "allPricesValid": true
+      },
+      "timestamp": "2025-10-23T18:52:32.735Z"
+    },
+    {
+      "name": "GET /api/search/properties (con fechas)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "checkIn": "2026-03-01",
+        "checkOut": "2026-03-05",
+        "resultsCount": 1
+      },
+      "timestamp": "2025-10-23T18:52:32.800Z"
+    },
+    {
+      "name": "GET /api/search/properties (múltiples filtros)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "filters": {
+          "guests": 2,
+          "minPrice": 50,
+          "maxPrice": 200,
+          "checkIn": "2026-03-01",
+          "checkOut": "2026-03-05"
+        },
+        "resultsCount": 1
+      },
+      "timestamp": "2025-10-23T18:52:32.861Z"
+    },
+    {
+      "name": "GET /api/search/suggestions",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "query": "Paris",
+        "suggestionsCount": 0,
+        "isArray": true
+      },
+      "timestamp": "2025-10-23T18:52:32.867Z"
+    },
+    {
+      "name": "GET /api/search/suggestions (sin query)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "resultsCount": 0
+      },
+      "timestamp": "2025-10-23T18:52:32.871Z"
+    },
+    {
+      "name": "GET /api/search/filters",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasExpectedFields": false,
+        "filters": [
+          "filters"
+        ]
+      },
+      "timestamp": "2025-10-23T18:52:32.878Z"
+    },
+    {
+      "name": "Verificar Estructura de Datos de Búsqueda",
+      "passed": true,
+      "details": {
+        "hasAllRequired": true,
+        "missingRequired": [],
+        "presentRecommended": [
+          "images",
+          "rating",
+          "propertyType",
+          "maxGuests"
+        ],
+        "recommendedFieldsCount": "4/4",
+        "totalFields": 21
+      },
+      "timestamp": "2025-10-23T18:52:32.936Z"
+    },
+    {
+      "name": "Verificar Paginación de Búsqueda",
+      "passed": true,
+      "details": {
+        "page1Count": 1,
+        "page2Count": 1,
+        "differentResults": false
+      },
+      "timestamp": "2025-10-23T18:52:33.056Z"
+    },
+    {
+      "name": "Verificar Headers HTTP",
+      "passed": true,
+      "details": {
+        "hasCORS": true,
+        "isJSON": true,
+        "corsValue": "*",
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2025-10-23T18:52:33.115Z"
+    }
+  ]
+}
