@@ -6,7 +6,7 @@ Integrar completamente el módulo de usuarios del frontend con el backend real, 
 ## ✅ **Estado de Integración: COMPLETADO**
 
 ### **Resumen Ejecutivo**
-El módulo de usuarios ha sido **completamente integrado** con el backend real. Todos los datos mock han sido eliminados y reemplazados por servicios API REST que se conectan directamente con el backend de Airbnb.
+El módulo de usuarios ha sido **completamente integrado** con el backend real. Todos los datos mock han sido eliminados y reemplazados por servicios API REST que se conectan directamente con el backend de Airbnb.11111111111111111111111111111111111111111111111111
 
 ---
 
