@@ -3,11 +3,62 @@ import { HostRepositoryFactory } from '../../models/factories/HostRepositoryFact
 import { PropertyRepositoryFactory } from '../../models/factories/PropertyRepositoryFactory';
 import { ReservationRepositoryFactory } from '../../models/factories/ReservationRepositoryFactory';
 import { ReviewRepositoryFactory } from '../../models/factories/ReviewRepositoryFactory';
+import { findUserById } from '../../models';
 
 const hostRepo = HostRepositoryFactory.create();
 const propertyRepo = PropertyRepositoryFactory.create();
 const reservationRepo = ReservationRepositoryFactory.create();
 const reviewRepo = ReviewRepositoryFactory.create();
+
+/**
+ * 🔐 Helper function to validate property ownership or admin access
+ * @param propertyId - ID of the property to check
+ * @param userId - ID of the user making the request
+ * @returns Object with isValid flag and error message if invalid
+ */
+const validatePropertyAccess = async (
+  propertyId: string,
+  userId: string
+): Promise<{ isValid: boolean; error?: string; statusCode?: number }> => {
+  // Get the property
+  const property = await hostRepo.getHostPropertyById(propertyId);
+  
+  if (!property) {
+    return {
+      isValid: false,
+      error: 'Propiedad no encontrada',
+      statusCode: 404
+    };
+  }
+
+  // Get user to check role
+  const user = await findUserById(userId);
+  if (!user) {
+    return {
+      isValid: false,
+      error: 'Usuario no encontrado',
+      statusCode: 401
+    };
+  }
+
+  // Check if user is admin
+  const isAdmin = user.role === 'admin';
+
+  // Check if user owns the property
+  const isOwner = property.hostId === userId;
+
+  // Allow if user is admin or owner
+  if (isAdmin || isOwner) {
+    return { isValid: true };
+  }
+
+  // Deny access
+  return {
+    isValid: false,
+    error: 'No tienes permisos para modificar esta propiedad',
+    statusCode: 403
+  };
+};
 
 // GET /api/host/properties - Obtener propiedades del host
 export const getHostPropertiesController = async (req: Request, res: Response): Promise<void> => {
@@ -43,7 +94,6 @@ export const getHostPropertiesController = async (req: Request, res: Response): 
 export const createHostPropertyController = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user?.userId;
-    const { title, description, pricePerNight, location, amenities, images, maxGuests, propertyType, bedrooms, bathrooms } = req.body;
 
     if (!userId) {
       res.status(401).json({
@@ -52,6 +102,9 @@ export const createHostPropertyController = async (req: Request, res: Response):
       });
       return;
     }
+
+    // Extraer datos del body (ignorar hostId si viene)
+    const { title, description, pricePerNight, location, amenities, images, maxGuests, propertyType, bedrooms, bathrooms } = req.body;
 
     // Validaciones básicas
     if (!title || !description || !pricePerNight || !location || !maxGuests || !propertyType) {
@@ -79,9 +132,9 @@ export const createHostPropertyController = async (req: Request, res: Response):
       return;
     }
 
-    // Crear propiedad
+    // Crear propiedad - asignar hostId desde token, ignorando cualquier hostId del body
     const property = await hostRepo.createHostProperty({
-      hostId: userId,
+      hostId: userId, // Siempre desde el token JWT, nunca desde el body
       title,
       description,
       pricePerNight,
@@ -90,6 +143,8 @@ export const createHostPropertyController = async (req: Request, res: Response):
       images: images || [],
       maxGuests,
       propertyType,
+      bedrooms,
+      bathrooms,
       isActive: true
     });
 
@@ -123,15 +178,18 @@ export const getHostPropertyController = async (req: Request, res: Response): Pr
       return;
     }
 
-    const property = await hostRepo.getHostPropertyById(id);
-
-    if (!property || property.hostId !== userId) {
-      res.status(404).json({
+    // Validar permisos de acceso (propiedad existe, es dueño o admin)
+    const accessValidation = await validatePropertyAccess(id, userId);
+    
+    if (!accessValidation.isValid) {
+      res.status(accessValidation.statusCode || 403).json({
         success: false,
-        error: { message: 'Propiedad no encontrada' }
+        error: { message: accessValidation.error || 'No tienes permisos para acceder a esta propiedad' }
       });
       return;
     }
+
+    const property = await hostRepo.getHostPropertyById(id);
 
     res.json({
       success: true,
@@ -160,17 +218,21 @@ export const updateHostPropertyController = async (req: Request, res: Response):
       return;
     }
 
-    // Verificar que la propiedad pertenece al host
-    const property = await hostRepo.getHostPropertyById(id);
-    if (!property || property.hostId !== userId) {
-      res.status(404).json({
+    // Validar permisos: verificar que la propiedad existe y pertenece al usuario o que el usuario es admin
+    const accessValidation = await validatePropertyAccess(id, userId);
+    
+    if (!accessValidation.isValid) {
+      res.status(accessValidation.statusCode || 403).json({
         success: false,
-        error: { message: 'Propiedad no encontrada' }
+        error: { message: accessValidation.error || 'No tienes permisos para modificar esta propiedad' }
       });
       return;
     }
 
-    const updatedProperty = await hostRepo.updateHostProperty(id, updates);
+    // Prevenir modificación del hostId desde el body
+    const { hostId, ...safeUpdates } = updates;
+
+    const updatedProperty = await hostRepo.updateHostProperty(id, safeUpdates);
     
     if (!updatedProperty) {
       res.status(404).json({
@@ -209,12 +271,13 @@ export const deleteHostPropertyController = async (req: Request, res: Response):
       return;
     }
 
-    // Verificar que la propiedad pertenece al host
-    const property = await hostRepo.getHostPropertyById(id);
-    if (!property || property.hostId !== userId) {
-      res.status(404).json({
+    // Validar permisos: verificar que la propiedad existe y pertenece al usuario o que el usuario es admin
+    const accessValidation = await validatePropertyAccess(id, userId);
+    
+    if (!accessValidation.isValid) {
+      res.status(accessValidation.statusCode || 403).json({
         success: false,
-        error: { message: 'Propiedad no encontrada' }
+        error: { message: accessValidation.error || 'No tienes permisos para eliminar esta propiedad' }
       });
       return;
     }
@@ -257,12 +320,13 @@ export const getHostPropertyReservationsController = async (req: Request, res: R
       return;
     }
 
-    // Verificar que la propiedad pertenece al host
-    const property = await hostRepo.getHostPropertyById(id);
-    if (!property || property.hostId !== userId) {
-      res.status(404).json({
+    // Validar permisos: verificar que la propiedad existe y pertenece al usuario o que el usuario es admin
+    const accessValidation = await validatePropertyAccess(id, userId);
+    
+    if (!accessValidation.isValid) {
+      res.status(accessValidation.statusCode || 403).json({
         success: false,
-        error: { message: 'Propiedad no encontrada' }
+        error: { message: accessValidation.error || 'No tienes permisos para acceder a esta propiedad' }
       });
       return;
     }
@@ -298,12 +362,13 @@ export const getHostPropertyReviewsController = async (req: Request, res: Respon
       return;
     }
 
-    // Verificar que la propiedad pertenece al host
-    const property = await hostRepo.getHostPropertyById(id);
-    if (!property || property.hostId !== userId) {
-      res.status(404).json({
+    // Validar permisos: verificar que la propiedad existe y pertenece al usuario o que el usuario es admin
+    const accessValidation = await validatePropertyAccess(id, userId);
+    
+    if (!accessValidation.isValid) {
+      res.status(accessValidation.statusCode || 403).json({
         success: false,
-        error: { message: 'Propiedad no encontrada' }
+        error: { message: accessValidation.error || 'No tienes permisos para acceder a esta propiedad' }
       });
       return;
     }

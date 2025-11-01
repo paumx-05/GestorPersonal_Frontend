@@ -9,6 +9,8 @@ export interface HostProperty {
   images: string[];
   maxGuests: number;
   propertyType: string;
+  bedrooms?: number;
+  bathrooms?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -33,6 +35,8 @@ export interface HostPropertyUpdate {
   images?: string[];
   maxGuests?: number;
   propertyType?: string;
+  bedrooms?: number;
+  bathrooms?: number;
   isActive?: boolean;
 }
 
