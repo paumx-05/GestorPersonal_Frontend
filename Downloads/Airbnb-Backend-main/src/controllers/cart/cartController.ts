@@ -27,8 +27,13 @@ import { CartResponse, AddToCartRequest, UpdateCartItemRequest, AvailabilityChec
 export const getUserCart = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
+    const userEmail = req.user?.email;
+    
+    // Logs para debugging
+    console.log('🛒 [CART] Obteniendo carrito para usuario:', { userId, userEmail });
     
     if (!userId) {
+      console.error('❌ [CART] No se recibió userId del token');
       res.status(401).json({
         success: false,
         message: 'Usuario no autenticado',
@@ -37,7 +42,14 @@ export const getUserCart = async (req: AuthenticatedRequest, res: Response): Pro
       return;
     }
     
-    const cartData = getCartByUserId(userId);
+    const cartData = await getCartByUserId(userId);
+    
+    console.log('✅ [CART] Carrito obtenido:', {
+      userId,
+      totalItems: cartData.totalItems,
+      totalPrice: cartData.totalPrice,
+      itemsCount: cartData.items.length
+    });
     
     res.status(200).json({
       success: true,
@@ -46,7 +58,7 @@ export const getUserCart = async (req: AuthenticatedRequest, res: Response): Pro
     } as CartResponse);
     
   } catch (error) {
-    console.error('Error al obtener carrito:', error);
+    console.error('❌ [CART] Error al obtener carrito:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',
@@ -108,6 +120,13 @@ export const addItemToCart = async (req: AuthenticatedRequest, res: Response): P
     const total = subtotal + cleaningFee + serviceFee + taxes;
     
     // Agregar al carrito
+    console.log('🛒 [CART] Agregando item al carrito:', {
+      userId,
+      propertyId: requestData.propertyId,
+      checkIn: requestData.checkIn,
+      checkOut: requestData.checkOut
+    });
+    
     const newItem = await addToCart(userId, {
       userId,
       propertyId: requestData.propertyId,
@@ -121,6 +140,12 @@ export const addItemToCart = async (req: AuthenticatedRequest, res: Response): P
       serviceFee,
       taxes,
       totalPrice: total
+    });
+    
+    console.log('✅ [CART] Item agregado exitosamente:', {
+      itemId: newItem.id,
+      userId: newItem.userId,
+      expiresAt: newItem.expiresAt
     });
     
     res.status(201).json({
@@ -185,7 +210,7 @@ export const removeItemFromCart = async (req: AuthenticatedRequest, res: Respons
     }
     
     // Eliminar del carrito
-    const removed = removeFromCart(userId, itemId);
+    const removed = await removeFromCart(userId, itemId);
     
     if (!removed) {
       res.status(404).json({
@@ -251,7 +276,7 @@ export const updateCartItem = async (req: AuthenticatedRequest, res: Response): 
     }
     
     // Actualizar item
-    const updatedItem = updateCartItemModel(userId, itemId, updates);
+    const updatedItem = await updateCartItemModel(userId, itemId, updates);
     
     if (!updatedItem) {
       res.status(404).json({
@@ -429,7 +454,7 @@ export const getCartItemById = async (req: AuthenticatedRequest, res: Response):
     }
     
     // Obtener item
-    const item = getCartItem(userId, itemId);
+    const item = await getCartItem(userId, itemId);
     
     if (!item) {
       res.status(404).json({
@@ -483,7 +508,7 @@ export const getCartStatistics = async (req: AuthenticatedRequest, res: Response
       return;
     }
     
-    const stats = getCartStats();
+    const stats = await getCartStats();
     
     res.status(200).json({
       success: true,
