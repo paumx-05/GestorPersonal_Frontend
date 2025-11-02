@@ -8,7 +8,14 @@ import { CartItemModel } from '../../schemas/CartSchema';
 
 export class CartRepositoryMongo implements ICartRepository {
   async getCartByUserId(userId: string): Promise<CartData> {
-    const items = await CartItemModel.find({ userId });
+    // Obtener todos los items del usuario (incluyendo los que no han expirado)
+    // El TTL de MongoDB eliminará automáticamente los expirados, pero por si acaso
+    // también filtramos manualmente para evitar mostrar items que están por expirar
+    const now = new Date();
+    const items = await CartItemModel.find({ 
+      userId,
+      expiresAt: { $gt: now } // Solo items que no han expirado
+    });
     const total = items.reduce((sum, item) => sum + item.total, 0);
     
     return {
@@ -21,10 +28,25 @@ export class CartRepositoryMongo implements ICartRepository {
   }
 
   async addToCart(userId: string, item: any): Promise<CartItem> {
+    const checkInDate = new Date(item.checkIn);
+    const now = new Date();
+    
+    // Calcular fecha de expiración: 30 días desde ahora O hasta el check-in, lo que sea más corto
+    // Esto asegura que los items permanezcan en el carrito hasta el check-in o por 30 días
+    const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 días
+    let expiresAt = checkInDate < thirtyDaysFromNow ? checkInDate : thirtyDaysFromNow;
+    
+    // Asegurar que expiresAt sea al menos 1 día en el futuro
+    // Si por alguna razón el check-in es muy próximo o pasado, dar al menos 24 horas
+    const oneDayFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 día
+    if (expiresAt < oneDayFromNow) {
+      expiresAt = oneDayFromNow;
+    }
+    
     const newItem = new CartItemModel({
       userId,
       propertyId: item.propertyId,
-      checkIn: new Date(item.checkIn),
+      checkIn: checkInDate,
       checkOut: new Date(item.checkOut),
       guests: item.guests,
       pricePerNight: item.pricePerNight,
@@ -34,7 +56,7 @@ export class CartRepositoryMongo implements ICartRepository {
       serviceFee: item.serviceFee,
       taxes: item.taxes,
       total: item.totalPrice,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 horas
+      expiresAt: expiresAt // 30 días o hasta check-in, lo que sea más corto
     });
     const savedItem = await newItem.save();
     return this.mapToCartItem(savedItem);
@@ -68,7 +90,12 @@ export class CartRepositoryMongo implements ICartRepository {
   }
 
   async getCartSummary(userId: string): Promise<CartSummary> {
-    const items = await CartItemModel.find({ userId });
+    // Filtrar solo items no expirados
+    const now = new Date();
+    const items = await CartItemModel.find({ 
+      userId,
+      expiresAt: { $gt: now } // Solo items que no han expirado
+    });
     const totalPrice = items.reduce((sum, item) => sum + item.total, 0);
     const totalNights = items.reduce((sum, item) => sum + item.totalNights, 0);
 

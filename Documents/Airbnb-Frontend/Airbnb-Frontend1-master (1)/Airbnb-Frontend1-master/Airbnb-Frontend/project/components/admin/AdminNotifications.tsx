@@ -1,106 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
-interface AdminNotification {
-  id: string;
-  type: 'info' | 'warning' | 'error' | 'success';
-  title: string;
-  message: string;
-  timestamp: string;
-  isRead: boolean;
-}
+import { useNotifications, AppNotification } from '@/context/NotificationsContext';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 const AdminNotifications = () => {
-  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Cargar notificaciones
-  useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Simular carga de notificaciones
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Generar notificaciones de ejemplo
-        const mockNotifications: AdminNotification[] = [
-          {
-            id: '1',
-            type: 'warning',
-            title: 'Alta actividad de usuarios',
-            message: 'Se ha detectado un aumento del 25% en el registro de usuarios en las últimas 24 horas.',
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            isRead: false
-          },
-          {
-            id: '2',
-            type: 'info',
-            title: 'Nueva propiedad agregada',
-            message: 'Se ha agregado una nueva propiedad en Madrid con 4 habitaciones.',
-            timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-            isRead: false
-          },
-          {
-            id: '3',
-            type: 'error',
-            title: 'Error en el sistema de pagos',
-            message: 'Se ha detectado un error en el procesamiento de pagos. Revisar logs del sistema.',
-            timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-            isRead: true
-          },
-          {
-            id: '4',
-            type: 'success',
-            title: 'Reserva completada exitosamente',
-            message: 'Se ha completado una reserva de €150 en Barcelona.',
-            timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-            isRead: true
-          },
-          {
-            id: '5',
-            type: 'info',
-            title: 'Actualización del sistema',
-            message: 'El sistema se actualizará mañana a las 2:00 AM. Tiempo estimado: 30 minutos.',
-            timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-            isRead: false
-          }
-        ];
-        
-        setNotifications(mockNotifications);
-      } catch (error) {
-        console.error('Error cargando notificaciones:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadNotifications();
-  }, []);
-
-  // Marcar notificación como leída
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
-
-  // Marcar todas como leídas
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
-  };
-
-  // Eliminar notificación
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
+  const { 
+    notifications, 
+    isLoading, 
+    error, 
+    markAsRead, 
+    markAllAsRead, 
+    removeNotification,
+    refreshNotifications 
+  } = useNotifications();
 
   // Obtener ícono según el tipo
   const getIcon = (type: string): string => {
@@ -109,6 +23,7 @@ const AdminNotifications = () => {
       case 'warning': return '⚠️';
       case 'error': return '❌';
       case 'success': return '✅';
+      case 'promo': return '🎉';
       default: return 'ℹ️';
     }
   };
@@ -120,6 +35,7 @@ const AdminNotifications = () => {
       case 'warning': return 'border-yellow-200 bg-yellow-50';
       case 'error': return 'border-red-200 bg-red-50';
       case 'success': return 'border-green-200 bg-green-50';
+      case 'promo': return 'border-purple-200 bg-purple-50';
       default: return 'border-gray-200 bg-gray-50';
     }
   };
@@ -142,6 +58,16 @@ const AdminNotifications = () => {
 
   // Contar notificaciones no leídas
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Mapear AppNotification a formato AdminNotification para compatibilidad
+  const mapNotification = (n: AppNotification) => ({
+    id: n.id,
+    type: n.type as 'info' | 'warning' | 'error' | 'success',
+    title: n.title,
+    message: n.message,
+    timestamp: n.createdAt,
+    isRead: n.isRead,
+  });
 
   // Mostrar loading
   if (isLoading) {
@@ -167,15 +93,43 @@ const AdminNotifications = () => {
           </p>
         </div>
         
-        {unreadCount > 0 && (
-          <button
-            onClick={markAllAsRead}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+        <div className="flex gap-2">
+          <Button
+            onClick={() => refreshNotifications()}
+            variant="outline"
+            className="flex items-center gap-2"
           >
-            Marcar todas como leídas
-          </button>
-        )}
+            <RefreshCw className="h-4 w-4" />
+            Actualizar
+          </Button>
+          
+          {unreadCount > 0 && (
+            <Button
+              onClick={markAllAsRead}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Marcar todas como leídas
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Mostrar error si existe */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            <Button
+              variant="link"
+              onClick={() => refreshNotifications()}
+              className="p-0 h-auto ml-2"
+            >
+              Intentar de nuevo
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Lista de notificaciones */}
       <div className="space-y-4">
@@ -190,18 +144,20 @@ const AdminNotifications = () => {
             <p className="text-gray-600">No tienes notificaciones pendientes en este momento.</p>
           </div>
         ) : (
-          notifications.map((notification) => (
+          notifications.map((notification) => {
+            const mappedNotification = mapNotification(notification);
+            return (
             <div
-              key={notification.id}
-              className={`p-4 rounded-lg border ${getColor(notification.type)} ${
-                !notification.isRead ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
+              key={mappedNotification.id}
+              className={`p-4 rounded-lg border ${getColor(mappedNotification.type)} ${
+                !mappedNotification.isRead ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
               }`}
             >
               <div className="flex items-start space-x-3">
                 {/* Ícono */}
                 <div className="flex-shrink-0">
                   <span className="text-2xl">
-                    {getIcon(notification.type)}
+                    {getIcon(mappedNotification.type)}
                   </span>
                 </div>
                 
@@ -209,35 +165,35 @@ const AdminNotifications = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">
-                      {notification.title}
+                      {mappedNotification.title}
                     </h3>
                     <div className="flex items-center space-x-2">
                       <span className="text-xs text-gray-500">
-                        {formatTimestamp(notification.timestamp)}
+                        {formatTimestamp(mappedNotification.timestamp)}
                       </span>
-                      {!notification.isRead && (
+                      {!mappedNotification.isRead && (
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       )}
                     </div>
                   </div>
                   
                   <p className="text-sm text-gray-600 mt-1">
-                    {notification.message}
+                    {mappedNotification.message}
                   </p>
                 </div>
                 
                 {/* Acciones */}
                 <div className="flex items-center space-x-2">
-                  {!notification.isRead && (
+                  {!mappedNotification.isRead && (
                     <button
-                      onClick={() => markAsRead(notification.id)}
+                      onClick={() => markAsRead(mappedNotification.id)}
                       className="text-xs text-blue-600 hover:text-blue-800"
                     >
                       Marcar como leída
                     </button>
                   )}
                   <button
-                    onClick={() => removeNotification(notification.id)}
+                    onClick={() => removeNotification(mappedNotification.id)}
                     className="text-xs text-red-600 hover:text-red-800"
                   >
                     Eliminar
@@ -245,7 +201,8 @@ const AdminNotifications = () => {
                 </div>
               </div>
             </div>
-          ))
+          );
+          })
         )}
       </div>
 
@@ -281,6 +238,13 @@ const AdminNotifications = () => {
               {notifications.filter(n => n.type === 'success').length}
             </div>
             <div className="text-sm text-gray-600">Éxitos</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600 mb-1">
+              {notifications.filter(n => n.type === 'promo').length}
+            </div>
+            <div className="text-sm text-gray-600">Promociones</div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Property } from '@/lib/api/properties';
+import { Property, getLocationString } from '@/lib/api/properties';
 import { useReservationCart } from '@/context/ReservationCartContext';
 
 // Interfaz para las props del componente de sidebar de reserva
@@ -82,24 +82,17 @@ const ReservationSidebar = ({ property }: ReservationSidebarProps) => {
     setIsAddingToCart(true);
     
     try {
-      // Crear item del carrito con datos de la reserva
+      // El backend espera solo estos campos según la documentación:
+      // { propertyId, checkIn, checkOut, guests, pricePerNight }
       const cartItem = {
         propertyId: property.id,
         checkIn,
         checkOut,
         guests,
-        totalNights: calculateNights(),
-        subtotal: calculateTotal(),
-        cleaningFee: 0, // Por simplicidad, sin fees adicionales
-        serviceFee: 0,
-        taxes: calculateTaxes(),
-        total: calculateFinalTotal(),
-        propertyTitle: property.title,
-        propertyLocation: property.location,
-        propertyImage: property.imageUrl,
+        pricePerNight: property.pricePerNight,
       };
 
-      addToCart(cartItem);
+      await addToCart(cartItem);
       
       // Mostrar confirmación
       alert('¡Reserva agregada al carrito!');
