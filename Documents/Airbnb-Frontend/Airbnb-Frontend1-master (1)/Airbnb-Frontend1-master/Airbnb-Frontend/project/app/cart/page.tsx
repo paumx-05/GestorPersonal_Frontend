@@ -1,17 +1,35 @@
 'use client';
 
+import { useState } from 'react';
 import { useReservationCart } from '@/context/ReservationCartContext';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Trash2, Calendar, Users, MapPin } from 'lucide-react';
+import { Trash2, Calendar, Users, MapPin, Loader2 } from 'lucide-react';
+
+/**
+ * Helper para convertir location a string (compatible con string u objeto)
+ */
+function getLocationDisplay(location: any): string {
+  if (!location) return 'Ubicación no disponible';
+  if (typeof location === 'string') return location;
+  if (typeof location === 'object') {
+    if (location.address) return location.address;
+    if (location.city) return location.city;
+    if (location.country) return location.country;
+    return 'Ubicación no disponible';
+  }
+  return String(location || 'Ubicación no disponible');
+}
 
 /**
  * Página del Carrito de Reservas
  * Muestra todas las reservas guardadas y permite gestionarlas
  */
 export default function CartPage() {
-  const { items, removeFromCart, getTotalPrice, clearCart } = useReservationCart();
+  const { items, removeFromCart, getTotalPrice, clearCart, isLoading, error } = useReservationCart();
+  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
+  const [isClearing, setIsClearing] = useState(false);
 
   // Función para formatear fechas
   const formatDate = (dateString: string) => {
@@ -41,6 +59,55 @@ export default function CartPage() {
     
     window.location.href = `/checkout?${params.toString()}`;
   };
+
+  // Función para eliminar item con estado de carga
+  const handleRemoveItem = async (id: string) => {
+    setRemovingItems(prev => new Set(prev).add(id));
+    try {
+      await removeFromCart(id);
+    } catch (error) {
+      console.error('Error eliminando item:', error);
+      alert('Error al eliminar la reserva del carrito');
+    } finally {
+      setRemovingItems(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  // Función para limpiar carrito con estado de carga
+  const handleClearCart = async () => {
+    if (!confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
+      return;
+    }
+    
+    setIsClearing(true);
+    try {
+      await clearCart();
+    } catch (error) {
+      console.error('Error limpiando carrito:', error);
+      alert('Error al limpiar el carrito');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  // Mostrar estado de carga
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[#FF385C]" />
+            <span className="ml-3 text-gray-600">Cargando carrito...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -80,11 +147,21 @@ export default function CartPage() {
           {items.length > 0 && (
             <Button
               variant="outline"
-              onClick={clearCart}
-              className="text-red-600 border-red-600 hover:bg-red-50"
+              onClick={handleClearCart}
+              disabled={isClearing}
+              className="text-red-600 border-red-600 hover:bg-red-50 disabled:opacity-50"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Limpiar Carrito
+              {isClearing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Limpiando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Limpiar Carrito
+                </>
+              )}
             </Button>
           )}
         </div>
@@ -95,13 +172,21 @@ export default function CartPage() {
             {items.map((item) => (
               <div key={item.id} className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex flex-col md:flex-row gap-4">
-                  {/* Imagen de la propiedad */}
-                  <div className="md:w-48 flex-shrink-0">
-                    <img
-                      src={item.propertyImage}
-                      alt={item.propertyTitle}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
+                  {/* Imagen de la propiedad - Mejorado para mejor visibilidad */}
+                  <div className="md:w-64 flex-shrink-0">
+                    <div className="relative w-full h-48 md:h-56 bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={item.propertyImage || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                        alt={item.propertyTitle}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Si la imagen falla al cargar, usar una imagen por defecto
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                        }}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
 
                   {/* Información de la reserva */}
@@ -112,7 +197,7 @@ export default function CartPage() {
                     
                     <div className="flex items-center text-gray-600 mb-2">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{item.propertyLocation}</span>
+                      <span className="text-sm">{getLocationDisplay(item.propertyLocation)}</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -157,10 +242,15 @@ export default function CartPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleRemoveItem(item.id)}
+                      disabled={removingItems.has(item.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {removingItems.has(item.id) ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -206,6 +296,13 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
+        {/* Mostrar error si existe */}
+        {error && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">{error}</p>
+          </div>
+        )}
       </div>
     </div>
   );
