@@ -1,9 +1,12 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { notificationsService } from '@/lib/api/notifications';
+import { Notification } from '@/schemas/notifications';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'promo';
 
+// Alias para compatibilidad con componentes existentes
 export interface AppNotification {
   id: string;
   title: string;
@@ -27,15 +30,16 @@ interface NotificationsState {
 }
 
 type NotificationsAction =
+  | { type: 'SET_NOTIFICATIONS'; payload: AppNotification[] }
   | { type: 'ADD'; payload: AppNotification }
   | { type: 'MARK_READ'; payload: { id: string } }
   | { type: 'MARK_ALL_READ' }
   | { type: 'REMOVE'; payload: { id: string } }
   | { type: 'CLEAR' }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<NotificationSettings> }
-  | { type: 'HYDRATE'; payload: { notifications: AppNotification[]; settings: NotificationSettings } };
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null };
 
-const NOTIFICATIONS_STORAGE_KEY = 'notifications';
 const SETTINGS_STORAGE_KEY = 'notification_settings';
 
 const defaultSettings: NotificationSettings = {
@@ -53,10 +57,10 @@ const initialState: NotificationsState = {
 
 function notificationsReducer(state: NotificationsState, action: NotificationsAction): NotificationsState {
   switch (action.type) {
-    case 'HYDRATE':
+    case 'SET_NOTIFICATIONS':
       return {
-        notifications: action.payload.notifications,
-        settings: action.payload.settings,
+        ...state,
+        notifications: action.payload,
       };
     case 'ADD':
       return {
@@ -93,74 +97,187 @@ function notificationsReducer(state: NotificationsState, action: NotificationsAc
   }
 }
 
+// Función helper para convertir Notification del backend a AppNotification
+function mapNotificationFromBackend(notification: Notification): AppNotification {
+  return {
+    id: notification.id,
+    title: notification.title,
+    message: notification.message,
+    type: notification.type as NotificationType,
+    createdAt: notification.createdAt,
+    isRead: notification.isRead,
+  };
+}
+
 interface NotificationsContextValue extends NotificationsState {
-  addNotification: (input: Omit<AppNotification, 'id' | 'createdAt' | 'isRead'>) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  removeNotification: (id: string) => void;
-  clearAll: () => void;
+  addNotification: (input: Omit<AppNotification, 'id' | 'createdAt' | 'isRead'>) => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  removeNotification: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
   updateSettings: (settings: Partial<NotificationSettings>) => void;
+  refreshNotifications: () => Promise<void>;
   unreadCount: number;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const NotificationsContext = createContext<NotificationsContextValue | undefined>(undefined);
 
 export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(notificationsReducer, initialState);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Cargar settings desde localStorage (solo UI preferences)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const rawNotifications = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
       const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-      const notifications: AppNotification[] = rawNotifications ? JSON.parse(rawNotifications) : [];
       const settings: NotificationSettings = rawSettings ? { ...defaultSettings, ...JSON.parse(rawSettings) } : defaultSettings;
-      dispatch({ type: 'HYDRATE', payload: { notifications, settings } });
+      dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
     } catch {
-      dispatch({ type: 'HYDRATE', payload: { notifications: [], settings: defaultSettings } });
+      dispatch({ type: 'UPDATE_SETTINGS', payload: defaultSettings });
     }
   }, []);
 
+  // Guardar settings en localStorage cuando cambien
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(state.notifications));
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(state.settings));
     } catch {
       // ignore write errors
     }
-  }, [state.notifications, state.settings]);
+  }, [state.settings]);
 
-  const addNotification = useCallback<NotificationsContextValue['addNotification']>((input) => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const createdAt = new Date().toISOString();
+  // Cargar notificaciones desde el backend al montar el componente
+  useEffect(() => {
+    refreshNotifications();
+  }, []);
+
+  // Función para cargar notificaciones desde el backend
+  const refreshNotifications = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('🔄 [NotificationsContext] Cargando notificaciones desde el backend...');
+      const response = await notificationsService.getAllNotifications();
+      
+      if (response.success && response.data) {
+        const mappedNotifications = response.data.map(mapNotificationFromBackend);
+        dispatch({ type: 'SET_NOTIFICATIONS', payload: mappedNotifications });
+        console.log('✅ [NotificationsContext] Notificaciones cargadas:', mappedNotifications.length);
+      } else {
+        console.error('❌ [NotificationsContext] Error cargando notificaciones:', response.message);
+        setError(response.message || 'Error cargando notificaciones');
+        dispatch({ type: 'SET_NOTIFICATIONS', payload: [] });
+      }
+    } catch (err) {
+      console.error('💥 [NotificationsContext] Error crítico cargando notificaciones:', err);
+      setError(err instanceof Error ? err.message : 'Error de conexión');
+      dispatch({ type: 'SET_NOTIFICATIONS', payload: [] });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Función para agregar notificación (solo UI - no se guarda en backend, es para pruebas)
+  const addNotification = useCallback<NotificationsContextValue['addNotification']>(async (input) => {
+    if (state.settings.muteAll) return;
+    
+    // Crear notificación local para pruebas UI
     const notification: AppNotification = {
-      id,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       title: input.title,
       message: input.message,
       type: input.type,
-      createdAt,
+      createdAt: new Date().toISOString(),
       isRead: false,
     };
-    if (state.settings.muteAll) return;
+    
     dispatch({ type: 'ADD', payload: notification });
+    
+    // Nota: Para crear notificaciones reales en el backend, se necesitaría un endpoint POST /api/notifications
+    // que actualmente no está implementado según el patrón REST estándar
   }, [state.settings.muteAll]);
 
-  const markAsRead = useCallback((id: string) => {
-    dispatch({ type: 'MARK_READ', payload: { id } });
-  }, []);
+  // Marcar notificación como leída en el backend y actualizar estado local
+  const markAsRead = useCallback(async (id: string) => {
+    try {
+      // Optimistic update
+      dispatch({ type: 'MARK_READ', payload: { id } });
+      
+      const response = await notificationsService.markAsRead(id);
+      
+      if (!response.success) {
+        // Revertir si falla
+        await refreshNotifications();
+        console.error('❌ [NotificationsContext] Error marcando como leída:', response.message);
+      } else {
+        console.log('✅ [NotificationsContext] Notificación marcada como leída');
+      }
+    } catch (err) {
+      // Revertir si falla
+      await refreshNotifications();
+      console.error('💥 [NotificationsContext] Error crítico marcando como leída:', err);
+    }
+  }, [refreshNotifications]);
 
-  const markAllAsRead = useCallback(() => {
-    dispatch({ type: 'MARK_ALL_READ' });
-  }, []);
+  // Marcar todas como leídas en el backend
+  const markAllAsRead = useCallback(async () => {
+    try {
+      // Optimistic update
+      dispatch({ type: 'MARK_ALL_READ' });
+      
+      const response = await notificationsService.markAllAsRead();
+      
+      if (!response.success) {
+        // Revertir si falla
+        await refreshNotifications();
+        console.error('❌ [NotificationsContext] Error marcando todas como leídas:', response.message);
+      } else {
+        console.log('✅ [NotificationsContext] Todas las notificaciones marcadas como leídas');
+      }
+    } catch (err) {
+      // Revertir si falla
+      await refreshNotifications();
+      console.error('💥 [NotificationsContext] Error crítico marcando todas como leídas:', err);
+    }
+  }, [refreshNotifications]);
 
-  const removeNotification = useCallback((id: string) => {
-    dispatch({ type: 'REMOVE', payload: { id } });
-  }, []);
+  // Eliminar notificación del backend
+  const removeNotification = useCallback(async (id: string) => {
+    try {
+      // Optimistic update
+      dispatch({ type: 'REMOVE', payload: { id } });
+      
+      const response = await notificationsService.deleteNotification(id);
+      
+      if (!response.success) {
+        // Revertir si falla
+        await refreshNotifications();
+        console.error('❌ [NotificationsContext] Error eliminando notificación:', response.message);
+      } else {
+        console.log('✅ [NotificationsContext] Notificación eliminada');
+      }
+    } catch (err) {
+      // Revertir si falla
+      await refreshNotifications();
+      console.error('💥 [NotificationsContext] Error crítico eliminando notificación:', err);
+    }
+  }, [refreshNotifications]);
 
-  const clearAll = useCallback(() => {
-    dispatch({ type: 'CLEAR' });
-  }, []);
+  // Limpiar todas las notificaciones (solo local, no afecta backend)
+  const clearAll = useCallback(async () => {
+    // Eliminar todas las notificaciones una por una del backend
+    const deletePromises = state.notifications.map(n => notificationsService.deleteNotification(n.id));
+    await Promise.all(deletePromises);
+    
+    // Refrescar desde el backend
+    await refreshNotifications();
+  }, [state.notifications, refreshNotifications]);
 
   const updateSettings = useCallback((settings: Partial<NotificationSettings>) => {
     dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
@@ -177,7 +294,10 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
     removeNotification,
     clearAll,
     updateSettings,
+    refreshNotifications,
     unreadCount,
+    isLoading,
+    error,
   };
 
   return (

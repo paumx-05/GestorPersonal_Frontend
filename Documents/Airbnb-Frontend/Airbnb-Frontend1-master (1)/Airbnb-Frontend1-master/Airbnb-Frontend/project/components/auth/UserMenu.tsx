@@ -29,7 +29,8 @@ import {
   Home,
   Users,
   Building2,
-  LayoutDashboard
+  LayoutDashboard,
+  Bell
 } from 'lucide-react';
 import { adminService } from '@/lib/api/admin';
 
@@ -189,6 +190,13 @@ export default function UserMenu() {
             <span>Mi Perfil</span>
           </Link>
           </DropdownMenuItem>
+        
+        <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-slate-700" asChild>
+          <Link href="/notifications">
+            <Bell className="h-4 w-4" />
+            <span>Notificaciones</span>
+          </Link>
+        </DropdownMenuItem>
         
         <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-slate-700">
           <Calendar className="h-4 w-4" />

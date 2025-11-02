@@ -6,6 +6,7 @@ import { NotificationsProvider } from '@/context/NotificationsContext';
 import { SearchProvider } from '@/context/SearchContext';
 import { ReservationCartProvider } from '@/context/ReservationCartContext';
 import { TokenRefreshProvider } from '@/components/auth/TokenRefreshProvider';
+import WelcomeNotification from '@/components/notifications/WelcomeNotification';
 
 // Importar el interceptor de renovación automática de tokens
 import '@/lib/api/authInterceptor';
@@ -34,6 +35,7 @@ export default function RootLayout({
             <NotificationsProvider>
               <SearchProvider>
                 <ReservationCartProvider>
+                  <WelcomeNotification />
                   {children}
                 </ReservationCartProvider>
               </SearchProvider>
