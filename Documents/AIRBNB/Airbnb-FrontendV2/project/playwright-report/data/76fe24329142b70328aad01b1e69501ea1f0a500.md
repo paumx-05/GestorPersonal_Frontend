@@ -1,0 +1,264 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e12]:
+          - generic [ref=e13]: ¡Oferta Flash! Reserva ahora y ahorra
+          - generic [ref=e14]: 45% OFF
+          - generic [ref=e15]: en tu próxima reserva
+        - generic [ref=e16]:
+          - img [ref=e17]
+          - generic [ref=e22]: Solo 15 cupos
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - img [ref=e25]
+          - generic [ref=e28]:
+            - generic [ref=e29]: "Termina en:"
+            - generic [ref=e30]: 02:00:00
+        - button "¡Reservar Ahora!" [ref=e31] [cursor=pointer]
+        - text: 😁
+        - button "Cerrar oferta" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+    - generic [ref=e39]:
+      - img [ref=e42]
+      - generic [ref=e44]:
+        - link "Inicio" [ref=e45] [cursor=pointer]:
+          - /url: /
+        - link "Nosotros" [ref=e46] [cursor=pointer]:
+          - /url: /about
+        - button "Experiencias" [ref=e47] [cursor=pointer]
+        - button "Ayuda" [ref=e48] [cursor=pointer]
+      - generic [ref=e49]:
+        - img [ref=e50]
+        - textbox "Madrid" [ref=e53]
+        - generic [ref=e54]: •
+        - generic [ref=e55]: Sep 11 - 14 • 2 guest
+        - button [ref=e56] [cursor=pointer]:
+          - img [ref=e57]
+      - generic [ref=e61]:
+        - link "Iniciar Sesión" [ref=e62] [cursor=pointer]:
+          - /url: /login
+          - button "Iniciar Sesión" [ref=e63]
+        - link "Registrarse" [ref=e64] [cursor=pointer]:
+          - /url: /register
+          - button "Registrarse" [ref=e65]
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - heading "Encuentra tu próximo alojamiento" [level=1] [ref=e71]
+        - paragraph [ref=e72]: Descubre lugares únicos para quedarte en todo el mundo
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: ¿A dónde vas?
+          - textbox "Buscar destinos" [ref=e77]
+        - generic [ref=e78]:
+          - generic [ref=e79]: Check-in
+          - textbox [ref=e80]
+        - generic [ref=e81]:
+          - generic [ref=e82]: Check-out
+          - textbox [ref=e83]
+        - generic [ref=e84]:
+          - generic [ref=e85]: ¿Cuántos huéspedes?
+          - combobox [ref=e86]:
+            - option "1 huésped" [selected]
+            - option "2 huéspedes"
+            - option "3 huéspedes"
+            - option "4 huéspedes"
+            - option "5 huéspedes"
+            - option "6 huéspedes"
+            - option "7 huéspedes"
+            - option "8 huéspedes"
+            - option "9 huéspedes"
+            - option "10+ huéspedes"
+        - button "Buscar" [ref=e88] [cursor=pointer]:
+          - img [ref=e89]
+          - text: Buscar
+    - generic [ref=e93]:
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - heading "Filtros" [level=3] [ref=e96]
+          - button "Limpiar filtros" [ref=e97] [cursor=pointer]
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - generic [ref=e100]: Tipo de alojamiento
+            - combobox [ref=e101]:
+              - option "Todos los tipos" [selected]
+              - option "Casa completa"
+              - option "Habitación privada"
+              - option "Habitación compartida"
+          - generic [ref=e102]:
+            - generic [ref=e103]: Precio por noche
+            - generic [ref=e104]:
+              - spinbutton [ref=e105]
+              - spinbutton [ref=e106]: "1000"
+          - generic [ref=e107]:
+            - generic [ref=e108]: Calificación mínima
+            - combobox [ref=e109]:
+              - option "Cualquier calificación" [selected]
+              - option "4+ estrellas"
+              - option "4.5+ estrellas"
+              - option "4.8+ estrellas"
+          - generic [ref=e110]:
+            - checkbox "Reserva instantánea" [ref=e111]
+            - generic [ref=e112]: Reserva instantánea
+        - generic [ref=e113]:
+          - generic [ref=e114]: Amenidades
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - checkbox "WiFi" [ref=e117]
+              - generic [ref=e118]: WiFi
+            - generic [ref=e119]:
+              - checkbox "Cocina" [ref=e120]
+              - generic [ref=e121]: Cocina
+            - generic [ref=e122]:
+              - checkbox "Piscina" [ref=e123]
+              - generic [ref=e124]: Piscina
+            - generic [ref=e125]:
+              - checkbox "Aire acondicionado" [ref=e126]
+              - generic [ref=e127]: Aire acondicionado
+            - generic [ref=e128]:
+              - checkbox "Calefacción" [ref=e129]
+              - generic [ref=e130]: Calefacción
+            - generic [ref=e131]:
+              - checkbox "Lavadora" [ref=e132]
+              - generic [ref=e133]: Lavadora
+            - generic [ref=e134]:
+              - checkbox "Secadora" [ref=e135]
+              - generic [ref=e136]: Secadora
+            - generic [ref=e137]:
+              - checkbox "Estacionamiento" [ref=e138]
+              - generic [ref=e139]: Estacionamiento
+            - generic [ref=e140]:
+              - checkbox "Terraza" [ref=e141]
+              - generic [ref=e142]: Terraza
+            - generic [ref=e143]:
+              - checkbox "Balcón" [ref=e144]
+              - generic [ref=e145]: Balcón
+            - generic [ref=e146]:
+              - checkbox "Jardín" [ref=e147]
+              - generic [ref=e148]: Jardín
+            - generic [ref=e149]:
+              - checkbox "Chimenea" [ref=e150]
+              - generic [ref=e151]: Chimenea
+            - generic [ref=e152]:
+              - checkbox "TV" [ref=e153]
+              - generic [ref=e154]: TV
+            - generic [ref=e155]:
+              - checkbox "Netflix" [ref=e156]
+              - generic [ref=e157]: Netflix
+            - generic [ref=e158]:
+              - checkbox "Gimnasio" [ref=e159]
+              - generic [ref=e160]: Gimnasio
+        - paragraph [ref=e162]:
+          - strong [ref=e163]: "Filtros activos:"
+          - text: Ninguno
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - heading "Alojamientos disponibles" [level=2] [ref=e166]
+          - paragraph [ref=e167]: 0 alojamientos encontrados
+        - generic [ref=e168]:
+          - img [ref=e170]
+          - heading "No se encontraron alojamientos" [level=3] [ref=e172]
+          - paragraph [ref=e173]: Intenta ajustar tus filtros de búsqueda para encontrar más opciones.
+    - generic [ref=e175]:
+      - generic [ref=e176]:
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - heading "Airbnb Clone" [level=3] [ref=e179]
+            - paragraph [ref=e180]: Conectamos a viajeros con anfitriones únicos en todo el mundo. Descubre experiencias auténticas y alojamientos especiales.
+            - generic [ref=e181]:
+              - link [ref=e182] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e183]
+              - link [ref=e185] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e186]
+              - link [ref=e188] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e189]
+              - link [ref=e193] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e194]
+          - generic [ref=e197]:
+            - heading "Enlaces Rápidos" [level=3] [ref=e198]
+            - list [ref=e199]:
+              - listitem [ref=e200]:
+                - link "Inicio" [ref=e201] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e202]:
+                - link "Acerca de Nosotros" [ref=e203] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e204]:
+                - link "Centro de Ayuda" [ref=e205] [cursor=pointer]:
+                  - /url: /help
+              - listitem [ref=e206]:
+                - link "Conviértete en Anfitrión" [ref=e207] [cursor=pointer]:
+                  - /url: /host
+              - listitem [ref=e208]:
+                - link "Experiencias" [ref=e209] [cursor=pointer]:
+                  - /url: /experiences
+          - generic [ref=e210]:
+            - heading "Contacto" [level=3] [ref=e211]
+            - generic [ref=e212]:
+              - generic [ref=e213]:
+                - img [ref=e214]
+                - generic [ref=e217]: contacto@airbnbclone.com
+              - generic [ref=e218]:
+                - img [ref=e219]
+                - generic [ref=e221]: +34 900 123 456
+              - generic [ref=e222]:
+                - img [ref=e223]
+                - generic [ref=e226]:
+                  - text: Calle Gran Vía, 123
+                  - text: 28013 Madrid, España
+              - generic [ref=e227]:
+                - img [ref=e228]
+                - generic [ref=e232]: www.airbnbclone.com
+          - generic [ref=e233]:
+            - heading "Legal y Soporte" [level=3] [ref=e234]
+            - list [ref=e235]:
+              - listitem [ref=e236]:
+                - link "Política de Privacidad" [ref=e237] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e238]:
+                - link "Términos de Servicio" [ref=e239] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e240]:
+                - link "Política de Cookies" [ref=e241] [cursor=pointer]:
+                  - /url: /cookies
+              - listitem [ref=e242]:
+                - link "Seguridad" [ref=e243] [cursor=pointer]:
+                  - /url: /security
+              - listitem [ref=e244]:
+                - link "Accesibilidad" [ref=e245] [cursor=pointer]:
+                  - /url: /accessibility
+        - generic [ref=e247]:
+          - heading "Mantente al día con nuestras ofertas" [level=3] [ref=e248]
+          - paragraph [ref=e249]: Recibe las mejores ofertas y novedades directamente en tu correo
+          - generic [ref=e250]:
+            - textbox "tu@email.com" [ref=e251]
+            - button "Suscribirse" [ref=e252] [cursor=pointer]
+      - generic [ref=e255]:
+        - generic [ref=e256]: © 2024 Airbnb Clone. Todos los derechos reservados.
+        - generic [ref=e257]:
+          - generic [ref=e258]: Hecho con ❤️ en España
+          - generic [ref=e259]:
+            - img [ref=e260]
+            - combobox [ref=e264]:
+              - option "Español (ES)" [selected]
+              - option "English (US)"
+              - option "Français"
+              - option "Deutsch"
+    - button "🔍 Debug" [ref=e265] [cursor=pointer]
+    - generic [ref=e267]:
+      - paragraph [ref=e268]: "Herramientas de Debug:"
+      - generic [ref=e269]:
+        - link "🔍 Debug de Autenticación" [ref=e270] [cursor=pointer]:
+          - /url: /debug-auth
+        - link "🔄 Test Token Refresh" [ref=e271] [cursor=pointer]:
+          - /url: /test-token-refresh
+  - alert [ref=e272]
+```

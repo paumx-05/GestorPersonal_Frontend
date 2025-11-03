@@ -1,0 +1,24 @@
+# Netlify redirects file for Next.js SPA routing
+# This file handles client-side routing for your Next.js app
+
+# API routes (if you have serverless functions)
+/api/*  /.netlify/functions/:splat  200
+
+# Static assets - serve directly
+/_next/*  /_next/:splat  200
+/static/*  /static/:splat  200
+
+# Images and other assets
+/images/*  /images/:splat  200
+/favicon.ico  /favicon.ico  200
+/robots.txt  /robots.txt  200
+/sitemap.xml  /sitemap.xml  200
+
+# Handle all other routes for client-side routing
+# This ensures that direct navigation to any route works
+/*  /index.html  200
+
+
+
+
+

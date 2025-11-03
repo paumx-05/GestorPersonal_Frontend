@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Siempre despues de acabar la tarea que se ha pedido, evitar lanzar o solicitar la apliacion del comando de ejecucion npm run dev o parecidos

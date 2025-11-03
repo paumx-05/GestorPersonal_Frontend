@@ -1,0 +1,138 @@
+---
+alwaysApply: false
+---
+# QA Testing Template - User Flow Verification
+
+## Test Configuration
+**Flow to test:** [FLOW_NAME]  
+**Base URL:** [BASE_URL]  
+**Main endpoint:** [MAIN_ENDPOINT]  
+**Test credentials:** [CREDENTIALS]  
+**Test data:** [TEST_DATA]  
+
+## Objective
+Act as a QA tester to verify the [FLOW_NAME] flow in our application using comprehensive testing methodology.
+
+## Testing Requirements
+
+### 1. **Main Flow Testing**
+- Navigate to [BASE_URL][MAIN_ENDPOINT]
+- Use credentials: [CREDENTIALS]
+- Verify [MAIN_ACTION]
+- Verify redirection to [DESTINATION_PAGE]
+- Check for infinite loops
+- Generate detailed Playwright test report
+
+### 2. **Session Persistence Testing**
+- After [SUCCESSFUL_ACTION], navigate to protected routes
+- Verify session is maintained between navigations
+- Verify token persistence in localStorage
+- Verify no unexpected logouts
+
+### 3. **Error Handling Testing**
+- Test with [INVALID_CREDENTIALS]
+- Test network connectivity issues
+- Verify appropriate error messages are displayed
+- Check console for errors and warnings
+
+### 4. **Cross-Browser Testing**
+- Test in Chrome, Firefox, Safari
+- Verify responsive design
+- Verify mobile compatibility
+
+## Deliverables
+
+### 1. **Playwright Report**
+Create `playwright-flow-[FLOW_NAME].md` with:
+- Test execution summary
+- Screenshots of each step
+- Console logs analysis
+- Issues found and severity levels
+- Recommendations for fixes
+
+### 2. **Issue Tracking**
+- List all bugs found with severity (Critical, High, Medium, Low)
+- Provide reproduction steps for each issue
+- Suggest fixes for each problem
+- Prioritize issues by impact
+
+### 3. **Performance Analysis**
+- Page load times
+- Response times for [MAIN_ENDPOINT]
+- Memory usage during testing
+- Network request analysis
+
+**Data set**
+
+Admin user: admin@airbnb.com Password: Admin1234!
+Normal user: ana1@gmail.com Password: 123456789
+
+**API DOCUMENTATION BACKEND**
+
+https://documenter.getpostman.com/view/48917645/2sB3Wjz3yS
+
+## Testing Methodology
+
+### Step 1: Pre-Test Setup
+- Clear browser cache and localStorage
+- Ensure backend is running
+- Verify network connectivity
+- Prepare test data
+
+### Step 2: Main Flow Execution
+- Navigate to [BASE_URL][MAIN_ENDPOINT]
+- Complete [FORM_DATA]
+- Submit form
+- Verify success/error states
+- Verify redirections
+
+### Step 3: Session Verification
+- Access protected routes
+- Verify authentication state
+- Verify token validity
+- Test logout functionality
+
+### Step 4: Error Scenario Testing
+- [INVALID_CREDENTIALS]
+- Network failures
+- Token expiration
+- Browser refresh scenarios
+
+### Step 5: Report Generation
+- Document all findings
+- Provide screenshots
+- Include console logs
+- Suggest improvements
+
+## Quality Standards
+- All tests must be repeatable
+- Document every step taken
+- Include positive and negative test cases
+- Verify fixes by re-running tests
+- Maintain test data consistency
+
+## Success Criteria
+- [MAIN_FLOW] works without errors
+- Session persists between navigations
+- No infinite loops or redirections
+- Appropriate error handling
+- Good user experience
+- No console errors
+- Fast response times
+
+## Follow-up Actions
+- If issues found, investigate root causes
+- Fix critical issues immediately
+- Re-test after fixes
+- Update test documentation
+- Create regression test suite
+
+## Configuration Variables
+
+### For Login Flow:
+
+IMPORTANT:
+
+Make sure to replace all MOCK usage with real API requests (Database)
+
+After the report, apply improvements to critical points or areas with errors based on the documentation.

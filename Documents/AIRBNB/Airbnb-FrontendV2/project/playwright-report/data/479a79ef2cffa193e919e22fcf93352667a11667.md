@@ -1,0 +1,112 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - img [ref=e6]
+    - heading "Iniciar Sesión" [level=1] [ref=e8]
+    - paragraph [ref=e9]: Bienvenido de vuelta a Airbnb Luxury
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - text: Email
+      - generic [ref=e13]:
+        - img [ref=e14]
+        - textbox "Email" [ref=e17]:
+          - /placeholder: tu@email.com
+    - generic [ref=e18]:
+      - text: Contraseña
+      - generic [ref=e19]:
+        - img [ref=e20]
+        - textbox "Contraseña" [ref=e23]:
+          - /placeholder: ••••••••
+        - button [ref=e24] [cursor=pointer]:
+          - img [ref=e25]
+    - link "¿Olvidaste tu contraseña?" [ref=e29] [cursor=pointer]:
+      - /url: /forgot-password
+    - button "Usar datos demo" [ref=e30] [cursor=pointer]
+    - button "Iniciar Sesión" [ref=e31] [cursor=pointer]
+    - paragraph [ref=e33]:
+      - text: ¿No tienes cuenta?
+      - button "Regístrate aquí" [ref=e34] [cursor=pointer]
+  - generic [ref=e36]:
+    - heading "🧪 Debug Register" [level=3] [ref=e37]
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - text: "Name:"
+        - textbox [ref=e40]: Usuario Test
+      - generic [ref=e41]:
+        - text: "Email:"
+        - textbox [ref=e42]: test@example.com
+      - generic [ref=e43]:
+        - text: "Password:"
+        - textbox [ref=e44]: password123
+      - button "Test Register" [ref=e45] [cursor=pointer]
+  - generic [ref=e47]:
+    - heading "🧪 Backend Response Tester" [level=3] [ref=e48]
+    - generic [ref=e49]:
+      - button "Test Backend Response" [ref=e50] [cursor=pointer]
+      - button "Test Raw Fetch" [ref=e51] [cursor=pointer]
+      - button "Clear Results" [ref=e52] [cursor=pointer]
+    - generic [ref=e53]:
+      - generic [ref=e54]: "Test Results:"
+      - generic [ref=e55]: No tests run yet
+  - generic [ref=e57]:
+    - generic [ref=e58]:
+      - img [ref=e59]
+      - heading "🧹 TOKEN CLEANER" [level=3] [ref=e62]
+    - paragraph [ref=e63]: "Hay tokens obsoletos que causan redirecciones. Click para limpiar:"
+    - button "🧹 LIMPIAR TOKENS" [ref=e64] [cursor=pointer]
+    - generic [ref=e65]:
+      - heading "⚠️ PROBLEMA IDENTIFICADO:" [level=4] [ref=e66]
+      - paragraph [ref=e67]:
+        - text: El middleware detecta tokens obsoletos y redirige automáticamente.
+        - text: Esto impide que los botones de login/register funcionen.
+  - generic [ref=e69]:
+    - generic [ref=e70]:
+      - img [ref=e71]
+      - heading "🔧 BACKEND ENDPOINT TESTER" [level=3] [ref=e74]
+    - paragraph [ref=e75]: "Diagnóstico específico del endpoint de reset password en el backend:"
+    - button "🔧 TEST ENDPOINT" [ref=e76] [cursor=pointer]
+  - generic [ref=e78]:
+    - generic [ref=e79]:
+      - img [ref=e80]
+      - heading "🔧 BACKEND CONNECTION DEBUGGER" [level=3] [ref=e83]
+    - paragraph [ref=e84]: "Diagnóstico completo de la conexión con el backend:"
+    - button "🔧 DIAGNOSTICAR BACKEND" [ref=e85] [cursor=pointer]
+  - generic [ref=e87]:
+    - generic [ref=e88]:
+      - img [ref=e89]
+      - heading "💾 PASSWORD SAVE TEST" [level=3] [ref=e93]
+    - paragraph [ref=e94]: "Test para verificar que la contraseña se guarde en la base de datos:"
+    - generic [ref=e95]:
+      - generic [ref=e96]: "Contraseña de prueba:"
+      - textbox "Contraseña para probar" [ref=e97]: test123456
+    - button "💾 TEST GUARDADO" [ref=e98] [cursor=pointer]
+  - generic [ref=e100]:
+    - generic [ref=e101]:
+      - img [ref=e102]
+      - heading "🌐 BACKEND CONNECTIVITY TEST" [level=3] [ref=e106]
+    - paragraph [ref=e107]: "Test de conectividad real con el backend en puerto 5000:"
+    - button "🌐 TEST CONECTIVIDAD" [ref=e108] [cursor=pointer]
+  - generic [ref=e110]:
+    - generic [ref=e111]:
+      - img [ref=e112]
+      - heading "🔍 BACKEND STATUS CHECKER" [level=3] [ref=e116]
+    - paragraph [ref=e117]: "Estado de conectividad con el backend:"
+    - button "Verificando..." [disabled]
+  - generic [ref=e119]:
+    - heading "🧪 SIMPLE BACKEND TEST" [level=3] [ref=e120]
+    - paragraph [ref=e121]: "Click para probar si el backend responde:"
+    - button "🧪 TEST BACKEND" [ref=e122] [cursor=pointer]
+  - generic [ref=e123]:
+    - heading "🧪 TEST BACKEND" [level=3] [ref=e124]
+    - paragraph [ref=e125]: "Click este botón para ver exactamente qué devuelve el backend:"
+    - button "🧪 TEST BACKEND NOW" [ref=e126] [cursor=pointer]
+  - paragraph [ref=e128]:
+    - strong [ref=e129]: "Demo:"
+    - text: usa demo@airbnb.com con cualquier contraseña
+  - link "Volver al inicio" [ref=e131] [cursor=pointer]:
+    - /url: /
+    - img [ref=e132]
+    - text: Volver al inicio
+```
