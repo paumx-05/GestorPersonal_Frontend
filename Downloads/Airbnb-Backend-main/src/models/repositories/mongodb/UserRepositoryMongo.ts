@@ -80,9 +80,34 @@ export class UserRepositoryMongo implements IUserRepository {
       }
 
       const updateData: any = {};
-      if (updates.name) updateData.name = updates.name.trim();
+      
+      // Actualizar name (validar que tenga contenido y longitud válida)
+      if (updates.name !== undefined) {
+        const trimmedName = updates.name.trim();
+        // Validar que tenga al menos 1 carácter y máximo 100
+        if (trimmedName && trimmedName.length > 0 && trimmedName.length <= 100) {
+          updateData.name = trimmedName;
+        } else {
+          // Si está vacío o muy largo, no actualizar (el controlador ya validó esto)
+          // No hacer nada aquí - el controlador maneja los errores de validación
+        }
+      }
+      
+      // Actualizar email
       if (updates.email) updateData.email = updates.email.toLowerCase();
-      if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
+      
+      // Actualizar avatar (puede ser null, string o undefined)
+      if (updates.avatar !== undefined) {
+        updateData.avatar = updates.avatar || null;
+      }
+      
+      // Actualizar description (puede ser null, string vacío o undefined)
+      if (updates.description !== undefined) {
+        const trimmedDesc = updates.description?.trim();
+        updateData.description = trimmedDesc || null;
+      }
+      
+      // Actualizar otros campos
       if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
       if (updates.role !== undefined) updateData.role = updates.role;
 
@@ -241,15 +266,23 @@ export class UserRepositoryMongo implements IUserRepository {
 
   // 🔄 FUNCIÓN DE MAPEO
   private mapToUser(mongoUser: any): User {
-    return {
+    // Crear objeto base
+    const user: any = {
       id: mongoUser._id.toString(),
       email: mongoUser.email,
       name: mongoUser.name,
       password: mongoUser.password,
-      avatar: mongoUser.avatar,
+      avatar: mongoUser.avatar || undefined,
       createdAt: mongoUser.createdAt.toISOString(),
       isActive: mongoUser.isActive,
       role: mongoUser.role || 'user'
     };
+
+    // Agregar campos opcionales si existen
+    if (mongoUser.description !== undefined) {
+      user.description = mongoUser.description;
+    }
+
+    return user as User;
   }
 }

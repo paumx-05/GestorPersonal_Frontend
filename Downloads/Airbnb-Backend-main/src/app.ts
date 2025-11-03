@@ -49,6 +49,9 @@ app.use(express.json({ limit: '10mb' }));
 // Parsear datos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true }));
 
+// Servir archivos estáticos (avatares)
+app.use('/uploads', express.static('uploads'));
+
 // =============================================================================
 // RUTAS PRINCIPALES
 // =============================================================================
@@ -80,7 +83,9 @@ app.get('/', (req, res) => {
           updateSettings: 'PUT /api/notifications/settings'
         },
         profile: {
-          update: 'PUT /api/profile',
+          get: 'GET /api/profile',
+          update: 'PATCH /api/profile (soporta JSON y FormData)',
+          updateLegacy: 'PUT /api/profile (legacy)',
           changePassword: 'POST /api/profile/change-password',
           settings: 'GET /api/profile/settings',
           updateSettings: 'PUT /api/profile/settings'

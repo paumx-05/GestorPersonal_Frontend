@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password: string;
   avatar?: string;
   bio?: string;
+  description?: string; // Nuevo campo según requisitos del frontend
   location?: string;
   phone?: string;
   createdAt: Date;
@@ -36,11 +37,19 @@ const UserSchema = new Schema<IUser>({
   },
   avatar: { 
     type: String,
-    validate: urlValidator
+    default: null,
+    trim: true
+    // Nota: urlValidator removido para permitir rutas relativas y URLs absolutas
   },
   bio: {
     type: String,
     maxlength: 500
+  },
+  description: {
+    type: String,
+    default: null,
+    maxlength: [500, 'La descripción no puede exceder 500 caracteres'],
+    trim: true
   },
   location: {
     type: String,

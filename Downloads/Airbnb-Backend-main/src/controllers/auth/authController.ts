@@ -6,6 +6,7 @@ import { validateEmail, validateName, validateRequiredFields, sanitizeInput } fr
 import { generateResetToken, verifyResetToken, invalidateResetToken, getActiveTokensCount } from '../../utils/resetToken';
 import { AuthResponse } from '../../types/auth';
 import { Resend } from 'resend';
+import { UserModel } from '../../models/schemas/UserSchema';
 
 // POST /api/auth/register
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -126,7 +127,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Buscar usuario
+    // Buscar usuario para verificar credenciales
     const user = await findUserByEmail(sanitizedEmail);
     
     if (!user) {
@@ -157,18 +158,30 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Obtener usuario completo directamente de MongoDB para asegurar datos actualizados (name, avatar)
+    const userDoc = await UserModel.findById(user.id);
+    
+    if (!userDoc) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Usuario no encontrado' }
+      });
+      return;
+    }
+
     // Generar token
     const token = generateToken(user.id, user.email);
 
+    // Asegurar que name y avatar siempre se devuelven (pueden ser null)
     const response: AuthResponse = {
       success: true,
       data: {
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          role: user.role || 'user'
+          id: String(userDoc._id),
+          email: userDoc.email,
+          name: userDoc.name || '', // Asegurar que name siempre existe
+          avatar: userDoc.avatar || undefined, // Convertir null a undefined para compatibilidad con interfaz
+          role: userDoc.role || 'user'
         },
         token
       }
@@ -215,8 +228,10 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    const user = await findUserById(userId);
-    if (!user) {
+    // Obtener usuario directamente de MongoDB para asegurar datos actualizados
+    const userDoc = await UserModel.findById(userId);
+    
+    if (!userDoc) {
       res.status(404).json({
         success: false,
         error: { message: 'Usuario no encontrado' }
@@ -224,16 +239,18 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    // Asegurar que name y avatar siempre se devuelven (pueden ser null)
     res.json({
       success: true,
       data: {
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          role: user.role || 'user',
-          createdAt: user.createdAt
+          id: String(userDoc._id),
+          email: userDoc.email,
+          name: userDoc.name || '', // Asegurar que name siempre existe
+          avatar: userDoc.avatar || undefined, // Convertir null a undefined para compatibilidad
+          description: userDoc.description || null,
+          role: userDoc.role || 'user',
+          createdAt: userDoc.createdAt?.toISOString() || new Date().toISOString()
         }
       }
     });

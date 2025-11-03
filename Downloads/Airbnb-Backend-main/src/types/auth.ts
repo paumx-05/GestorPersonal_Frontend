@@ -30,7 +30,8 @@ export interface AuthResponse {
       id: string;
       email: string;
       name: string;
-      avatar?: string;
+      avatar?: string | null; // Permitir null también
+      description?: string | null; // Agregar description para compatibilidad
       createdAt?: string;
       role?: 'user' | 'admin';
     };
@@ -59,6 +60,7 @@ export interface UpdateUserData {
   email?: string;
   name?: string;
   avatar?: string;
+  description?: string;
   isActive?: boolean;
   role?: 'user' | 'admin';
 }

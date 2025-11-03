@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { 
   getProfile,
-  updateProfile, 
+  updateProfile,
+  patchProfile, 
   changePassword, 
   getProfileSettings, 
   updateProfileSettings 
 } from '../../controllers/profile/profileController';
 import { authenticateToken } from '../../middleware/auth/authMiddleware';
+import { uploadAvatar, handleMulterError } from '../../middleware/upload/avatarUpload';
 
 const router = Router();
 
@@ -15,6 +17,9 @@ router.use(authenticateToken);
 
 // Rutas de perfil
 router.get('/', getProfile);
+// PATCH - Endpoint unificado según requisitos del frontend (soporta JSON y FormData)
+router.patch('/', uploadAvatar, handleMulterError, patchProfile);
+// PUT - Mantener para compatibilidad
 router.put('/', updateProfile);
 router.post('/change-password', changePassword);
 router.get('/settings', getProfileSettings);
