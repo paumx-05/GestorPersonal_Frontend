@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-10-23T18:37:10.179Z",
+  "totalTests": 13,
+  "passed": 13,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Registrar Usuario de Prueba",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGZhNzVkN2VkZTc1OTNjMzhiMzAwZjMiLCJlbWFpbCI6InRlc3QucmVzZXJ2YXRpb25zLjE3NjEyNDQ2MzAxNzlAZGVtby5jb20iLCJpYXQiOjE3NjEyNDQ2MzF9.aOnprPw7xuMJ0N61kllRQSaGcYn8apaYe1pqS9vLipc",
+      "details": {
+        "status": 201,
+        "hasToken": true,
+        "userId": "68fa75d7ede7593c38b300f3"
+      },
+      "timestamp": "2025-10-23T18:37:11.842Z"
+    },
+    {
+      "name": "GET /api/reservations/check-availability",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "available": false,
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T18:37:11.910Z"
+    },
+    {
+      "name": "GET /api/reservations/check-availability (sin params)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "Faltan parámetros requeridos",
+        "correct": "Correctamente valida parámetros"
+      },
+      "timestamp": "2025-10-23T18:37:11.917Z"
+    },
+    {
+      "name": "POST /api/reservations",
+      "passed": true,
+      "details": {
+        "status": 201,
+        "reservationId": "68fa75d7ede7593c38b300f7",
+        "hasData": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        },
+        "dbVerification": true
+      },
+      "timestamp": "2025-10-23T18:37:12.042Z"
+    },
+    {
+      "name": "POST /api/reservations (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T18:37:12.049Z"
+    },
+    {
+      "name": "POST /api/reservations (datos inválidos)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "El número de huéspedes debe ser mayor a 0"
+      },
+      "timestamp": "2025-10-23T18:37:12.056Z"
+    },
+    {
+      "name": "GET /api/reservations/my-reservations",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "reservationsCount": 1,
+        "isArray": true,
+        "includesTestReservation": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T18:37:12.092Z"
+    },
+    {
+      "name": "GET /api/reservations/my-reservations (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T18:37:12.096Z"
+    },
+    {
+      "name": "PATCH /api/reservations/:id/status",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "dbStatusUpdated": true,
+        "newStatus": "confirmed"
+      },
+      "timestamp": "2025-10-23T18:37:12.228Z"
+    },
+    {
+      "name": "PATCH /api/reservations/:id/status (estado inválido)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "Estado de reserva inválido"
+      },
+      "timestamp": "2025-10-23T18:37:12.236Z"
+    },
+    {
+      "name": "Verificar Estructura de Datos de Reserva",
+      "passed": true,
+      "details": {
+        "hasAllRequired": true,
+        "missingRequired": [],
+        "presentRecommended": [
+          "totalPrice",
+          "createdAt",
+          "updatedAt"
+        ],
+        "recommendedFieldsCount": "3/3",
+        "totalFields": 11
+      },
+      "timestamp": "2025-10-23T18:37:12.270Z"
+    },
+    {
+      "name": "Verificar Consistencia con BD",
+      "passed": true,
+      "details": {
+        "propertyIdMatches": true,
+        "guestsMatch": true,
+        "statusMatches": true,
+        "apiData": {
+          "propertyId": "65f0cc30cc30cc30cc30cc30",
+          "guests": 2,
+          "status": "confirmed"
+        },
+        "dbData": {
+          "propertyId": "65f0cc30cc30cc30cc30cc30",
+          "guests": 2,
+          "status": "confirmed"
+        }
+      },
+      "timestamp": "2025-10-23T18:37:12.335Z"
+    },
+    {
+      "name": "Verificar Headers HTTP",
+      "passed": true,
+      "details": {
+        "hasCORS": true,
+        "isJSON": true,
+        "corsValue": "*",
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2025-10-23T18:37:12.366Z"
+    }
+  ]
+}

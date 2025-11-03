@@ -1,0 +1,137 @@
+{
+  "timestamp": "2025-10-23T19:01:12.949Z",
+  "totalTests": 11,
+  "passed": 11,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Login Usuario Admin",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasToken": true,
+        "email": "demo@airbnb.com",
+        "note": "Contraseña actualizada y login exitoso"
+      },
+      "timestamp": "2025-10-23T19:01:14.065Z"
+    },
+    {
+      "name": "GET /api/stats",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasExpectedFields": false,
+        "stats": [
+          "system",
+          "rateLimiting",
+          "cache",
+          "logging"
+        ],
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T19:01:14.075Z"
+    },
+    {
+      "name": "GET /api/stats (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T19:01:14.079Z"
+    },
+    {
+      "name": "GET /api/stats/logs",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "isArray": false,
+        "logsCount": "N/A"
+      },
+      "timestamp": "2025-10-23T19:01:14.084Z"
+    },
+    {
+      "name": "GET /api/stats/logs (con filtros)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "level": "info",
+        "limit": 50,
+        "logsCount": "N/A"
+      },
+      "timestamp": "2025-10-23T19:01:14.090Z"
+    },
+    {
+      "name": "GET /api/stats/logs (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T19:01:14.093Z"
+    },
+    {
+      "name": "POST /api/stats/logs/clear",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "message": "Logs limpiados exitosamente"
+      },
+      "timestamp": "2025-10-23T19:01:14.098Z"
+    },
+    {
+      "name": "POST /api/stats/logs/clear (sin auth)",
+      "passed": true,
+      "details": {
+        "status": 401,
+        "error": "Token de acceso requerido"
+      },
+      "timestamp": "2025-10-23T19:01:14.103Z"
+    },
+    {
+      "name": "Verificar Estructura de Datos de Estadísticas",
+      "passed": true,
+      "details": {
+        "hasStats": true,
+        "fieldsCount": 4,
+        "fields": [
+          "system",
+          "rateLimiting",
+          "cache",
+          "logging"
+        ]
+      },
+      "timestamp": "2025-10-23T19:01:14.111Z"
+    },
+    {
+      "name": "Verificar Información del Sistema en Estadísticas",
+      "passed": true,
+      "details": {
+        "type": "System statistics",
+        "hasSystemInfo": true,
+        "fields": [
+          "system",
+          "rateLimiting",
+          "cache",
+          "logging"
+        ]
+      },
+      "timestamp": "2025-10-23T19:01:14.116Z"
+    },
+    {
+      "name": "Verificar Headers HTTP",
+      "passed": true,
+      "details": {
+        "hasCORS": true,
+        "isJSON": true,
+        "corsValue": "*",
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2025-10-23T19:01:14.120Z"
+    }
+  ]
+}

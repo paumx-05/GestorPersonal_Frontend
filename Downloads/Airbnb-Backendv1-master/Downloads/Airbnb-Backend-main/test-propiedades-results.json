@@ -1,0 +1,161 @@
+{
+  "timestamp": "2025-10-23T18:27:00.205Z",
+  "totalTests": 12,
+  "passed": 12,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Registrar Usuario de Prueba",
+      "passed": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGZhNzM3NWY1ZDA5M2I0ZGY0ZmFhNWIiLCJlbWFpbCI6InRlc3QucHJvcGVydGllcy4xNzYxMjQ0MDIwMjA1QGRlbW8uY29tIiwiaWF0IjoxNzYxMjQ0MDIxfQ.eb80I7_oC_fYbQV-HCOWPdbZBqn_4mRrwhAT5OxWU-k",
+      "details": {
+        "status": 201,
+        "hasToken": true,
+        "userId": "68fa7375f5d093b4df4faa5b"
+      },
+      "timestamp": "2025-10-23T18:27:01.877Z"
+    },
+    {
+      "name": "GET /api/properties/:id",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "hasData": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        },
+        "dbVerification": true,
+        "propertyTitle": "Apartamento céntrico con balcón"
+      },
+      "timestamp": "2025-10-23T18:27:01.997Z"
+    },
+    {
+      "name": "GET /api/properties/:id (ID inválido)",
+      "passed": true,
+      "details": {
+        "status": 404,
+        "error": "Propiedad no encontrada",
+        "correct": "Correctamente retorna error"
+      },
+      "timestamp": "2025-10-23T18:27:02.031Z"
+    },
+    {
+      "name": "GET /api/properties/:id (ID malformado)",
+      "passed": true,
+      "details": {
+        "status": 400,
+        "error": "ID de propiedad inválido"
+      },
+      "timestamp": "2025-10-23T18:27:02.036Z"
+    },
+    {
+      "name": "GET /api/properties/popular",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "propertiesReturned": 1,
+        "isArray": true,
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        },
+        "totalPropertiesInDB": 1,
+        "sampleProperty": {
+          "id": "65f0cc30cc30cc30cc30cc30",
+          "title": "Apartamento céntrico con balcón",
+          "price": 95
+        }
+      },
+      "timestamp": "2025-10-23T18:27:02.125Z"
+    },
+    {
+      "name": "GET /api/properties/popular (sin params)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "propertiesReturned": 1,
+        "isArray": true,
+        "hasDefaultLimit": true
+      },
+      "timestamp": "2025-10-23T18:27:02.183Z"
+    },
+    {
+      "name": "GET /api/properties/popular (límite=3)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "requestedLimit": 3,
+        "propertiesReturned": 1,
+        "respectsLimit": true
+      },
+      "timestamp": "2025-10-23T18:27:02.242Z"
+    },
+    {
+      "name": "Verificar Estructura de Datos de Propiedad",
+      "passed": true,
+      "details": {
+        "hasAllRequired": true,
+        "missingRequired": [],
+        "presentRecommended": [
+          "bedrooms",
+          "bathrooms",
+          "amenities",
+          "images"
+        ],
+        "recommendedFieldsCount": "4/6",
+        "totalFields": 21
+      },
+      "timestamp": "2025-10-23T18:27:02.302Z"
+    },
+    {
+      "name": "Verificar Consistencia con BD",
+      "passed": true,
+      "details": {
+        "titleMatches": true,
+        "priceMatches": true,
+        "descriptionMatches": true,
+        "apiData": {
+          "title": "Apartamento céntrico con balcón",
+          "price": 95
+        },
+        "dbData": {
+          "title": "Apartamento céntrico con balcón",
+          "price": 95
+        }
+      },
+      "timestamp": "2025-10-23T18:27:02.362Z"
+    },
+    {
+      "name": "Verificar Paginación/Límite en Popular",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "totalInDB": 1,
+        "returned": 1,
+        "respectsMaxLimit": true
+      },
+      "timestamp": "2025-10-23T18:27:02.455Z"
+    },
+    {
+      "name": "Verificar CORS Headers",
+      "passed": true,
+      "details": {
+        "hasCORSHeader": true,
+        "corsValue": "*"
+      },
+      "timestamp": "2025-10-23T18:27:02.511Z"
+    },
+    {
+      "name": "Verificar Content-Type JSON",
+      "passed": true,
+      "details": {
+        "contentType": "application/json; charset=utf-8",
+        "isJSON": true
+      },
+      "timestamp": "2025-10-23T18:27:02.568Z"
+    }
+  ]
+}

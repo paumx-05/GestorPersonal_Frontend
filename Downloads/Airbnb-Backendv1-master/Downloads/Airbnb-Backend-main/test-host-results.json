@@ -1,0 +1,159 @@
+{
+  "timestamp": "2025-10-21T18:03:50.472Z",
+  "totalTests": 9,
+  "passed": 9,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "1. Login de Admin",
+      "status": "PASSED",
+      "details": {
+        "message": "Login exitoso",
+        "userId": "68f3f23cbd2b413e50624f4e"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:51.058Z"
+    },
+    {
+      "name": "2. Crear Propiedad",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad creada correctamente",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "title": "Casa de Prueba QA - Host",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:53.192Z"
+    },
+    {
+      "name": "3. Obtener Propiedades del Host",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 6 propiedades",
+        "count": 6,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:54.246Z"
+    },
+    {
+      "name": "4. Obtener Propiedad Específica",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad obtenida correctamente",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "title": "Casa de Prueba QA - Host",
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:55.291Z"
+    },
+    {
+      "name": "5. Actualizar Propiedad",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad actualizada correctamente",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "newTitle": "Casa de Prueba QA - Actualizada",
+        "newPrice": 200,
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:57.281Z"
+    },
+    {
+      "name": "6. Obtener Reservas de Propiedad",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 0 reservas",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "count": 0,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:58.360Z"
+    },
+    {
+      "name": "7. Obtener Reviews de Propiedad",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 0 reviews",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "count": 0,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:03:59.445Z"
+    },
+    {
+      "name": "8. Obtener Estadísticas del Host",
+      "status": "PASSED",
+      "details": {
+        "message": "Estadísticas obtenidas correctamente",
+        "stats": {
+          "totalProperties": 6,
+          "activeProperties": 6,
+          "totalReservations": 8,
+          "pendingReservations": 1,
+          "confirmedReservations": 8,
+          "totalRevenue": 9500,
+          "averageRating": 4.5
+        },
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:04:00.486Z"
+    },
+    {
+      "name": "9. Eliminar Propiedad",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad eliminada correctamente",
+        "propertyId": "68f7cb08a2faad5570a67891",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:04:02.985Z"
+    }
+  ]
+}

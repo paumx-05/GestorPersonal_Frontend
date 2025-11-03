@@ -1,0 +1,2181 @@
+{
+  "info": {
+    "name": "Airbnb Backend API",
+    "description": "API completa del backend de Airbnb con todos los endpoints implementados",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set auth token for authenticated endpoints",
+          "if (pm.environment.get('auth_token')) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: 'Bearer ' + pm.environment.get('auth_token')",
+          "    });",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-extract token from login/register responses",
+          "if (pm.response.code === 200 || pm.response.code === 201) {",
+          "    const response = pm.response.json();",
+          "    if (response.success && response.data && response.data.token) {",
+          "        pm.environment.set('auth_token', response.data.token);",
+          "        console.log('Token guardado automáticamente');",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Autenticación",
+      "description": "Endpoints para registro, login, logout y gestión de contraseñas",
+      "item": [
+        {
+          "name": "Registrar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@airbnb.com\",\n  \"password\": \"password123\",\n  \"name\": \"Usuario Demo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@airbnb.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Perfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Olvidé mi Contraseña",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@airbnb.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restablecer Contraseña",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset_token_here\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "reset-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Auth (Opcional)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "test"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Usuarios",
+      "description": "CRUD completo de usuarios con paginación y estadísticas",
+      "item": [
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=1&limit=10&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas de Usuarios",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario por ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nuevo@ejemplo.com\",\n  \"name\": \"Usuario Nuevo\",\n  \"password\": \"Password123\",\n  \"avatar\": \"https://via.placeholder.com/150\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Actualizado\",\n  \"email\": \"actualizado@ejemplo.com\",\n  \"avatar\": \"https://via.placeholder.com/200\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛒 Carrito",
+      "description": "Sistema completo de carrito de compras para reservas",
+      "item": [
+        {
+          "name": "Obtener Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar al Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\",\n  \"checkIn\": \"2024-02-01\",\n  \"checkOut\": \"2024-02-05\",\n  \"guests\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/add",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Item del Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart/remove/item_123",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "remove", "item_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Item del Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"checkIn\": \"2024-02-02\",\n  \"checkOut\": \"2024-02-06\",\n  \"guests\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/update/item_123",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "update", "item_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "clear"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen del Carrito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "summary"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Item Específico",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart/item/item_123",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "item", "item_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verificar Disponibilidad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\",\n  \"checkIn\": \"2024-02-01\",\n  \"checkOut\": \"2024-02-05\",\n  \"guests\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/check-availability",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "check-availability"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas del Carrito (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cart/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "❤️ Favoritos",
+      "description": "Sistema de favoritos y wishlists",
+      "item": [
+        {
+          "name": "Agregar a Favoritos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/favorites",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover de Favoritos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/prop_123",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "prop_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Favoritos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verificar Estado de Favorito",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/prop_123/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "prop_123", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mi Wishlist de Vacaciones\",\n  \"description\": \"Lugares que quiero visitar\",\n  \"isPublic\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Wishlists del Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Wishlists Públicas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/public",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "public"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Wishlist Específica",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Wishlist Actualizada\",\n  \"description\": \"Nueva descripción\",\n  \"isPublic\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar Propiedad a Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/1/properties",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "1", "properties"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remover Propiedad de Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/wishlists/1/properties/prop_123",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "wishlists", "1", "properties", "prop_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas de Favoritos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/favorites/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "favorites", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏠 Host",
+      "description": "Gestión de propiedades para hosts",
+      "item": [
+        {
+          "name": "Obtener Propiedades del Host",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/properties",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Propiedad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hermosa Casa en la Playa\",\n  \"description\": \"Casa frente al mar con vista espectacular\",\n  \"address\": \"Playa del Carmen, México\",\n  \"price\": 150,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"guests\": 6,\n  \"amenities\": [\"WiFi\", \"Piscina\", \"Estacionamiento\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/host/properties",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Propiedad Específica",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/properties/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Propiedad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Casa Actualizada\",\n  \"description\": \"Nueva descripción\",\n  \"price\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/host/properties/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Propiedad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/properties/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reservas de Propiedad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/properties/1/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties", "1", "reservations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reviews de Propiedad",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/properties/1/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "properties", "1", "reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas del Host",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/host/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "host", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notificaciones",
+      "description": "Sistema completo de notificaciones",
+      "item": [
+        {
+          "name": "Obtener Notificaciones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar como Leída",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/1/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "1", "read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar Todas como Leídas",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/mark-all-read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "mark-all-read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Notificación",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Todas las Notificaciones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/clear-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "clear-all"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Notificación de Prueba",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "test"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Configuración",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Configuración",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": true,\n  \"push\": true,\n  \"sound\": false,\n  \"marketing\": false,\n  \"propertyUpdates\": true,\n  \"searchAlerts\": true,\n  \"muteAll\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/notifications/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "settings"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💳 Pagos",
+      "description": "Sistema de pagos y transacciones",
+      "item": [
+        {
+          "name": "Calcular Checkout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"propertyId\": \"prop_123\",\n      \"checkIn\": \"2024-02-01\",\n      \"checkOut\": \"2024-02-05\",\n      \"guests\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/checkout/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "checkout", "calculate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Procesar Pago",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"credit_card\",\n  \"cardDetails\": {\n    \"number\": \"4111111111111111\",\n    \"expiry\": \"12/25\",\n    \"cvv\": \"123\"\n  },\n  \"billingAddress\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/checkout/process",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "checkout", "process"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Métodos de Pago",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/methods",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "methods"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Historial de Transacciones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "transactions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transacción Específica",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/transactions/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "transactions", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Procesar Reembolso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/transactions/1/refund",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "transactions", "1", "refund"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 Perfil",
+      "description": "Gestión de perfil de usuario",
+      "item": [
+        {
+          "name": "Actualizar Perfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Nombre\",\n  \"avatar\": \"https://example.com/avatar.jpg\",\n  \"bio\": \"Viajero apasionado\",\n  \"location\": \"Ciudad de México\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Contraseña",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "change-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Configuración",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Configuración",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"es\",\n  \"currency\": \"MXN\",\n  \"timezone\": \"America/Mexico_City\",\n  \"emailNotifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/settings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "settings"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏘️ Propiedades",
+      "description": "Gestión de propiedades públicas",
+      "item": [
+        {
+          "name": "Obtener Propiedad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/properties/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "properties", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Propiedades Populares",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/properties/popular?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "properties", "popular"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📅 Reservas",
+      "description": "Sistema de reservas",
+      "item": [
+        {
+          "name": "Verificar Disponibilidad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reservations/check-availability?propertyId=prop_123&checkIn=2024-02-01&checkOut=2024-02-05&guests=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations", "check-availability"],
+              "query": [
+                {
+                  "key": "propertyId",
+                  "value": "prop_123"
+                },
+                {
+                  "key": "checkIn",
+                  "value": "2024-02-01"
+                },
+                {
+                  "key": "checkOut",
+                  "value": "2024-02-05"
+                },
+                {
+                  "key": "guests",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\",\n  \"checkIn\": \"2024-02-01\",\n  \"checkOut\": \"2024-02-05\",\n  \"guests\": 2,\n  \"totalPrice\": 600,\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mis Reservas",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reservations/my-reservations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations", "my-reservations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Estado de Reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reservations/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations", "1", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⭐ Reviews",
+      "description": "Sistema de reseñas y calificaciones",
+      "item": [
+        {
+          "name": "Reviews de Propiedad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "property", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas de Reviews de Propiedad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/property/1/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "property", "1", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop_123\",\n  \"rating\": 5,\n  \"comment\": \"Excelente lugar, muy recomendado\",\n  \"reservationId\": \"res_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reviews de Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/user/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "user", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas Generales de Reviews",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Muy bueno, pero podría mejorar\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔍 Búsqueda",
+      "description": "Sistema de búsqueda de propiedades",
+      "item": [
+        {
+          "name": "Buscar Propiedades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/search/properties?location=Paris&guests=2&checkIn=2024-03-01&checkOut=2024-03-05&minPrice=50&maxPrice=200",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search", "properties"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "Paris"
+                },
+                {
+                  "key": "guests",
+                  "value": "2"
+                },
+                {
+                  "key": "checkIn",
+                  "value": "2024-03-01"
+                },
+                {
+                  "key": "checkOut",
+                  "value": "2024-03-05"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "50"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "200"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sugerencias de Búsqueda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/search/suggestions?q=Paris",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Paris"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtros Disponibles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/search/filters",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search", "filters"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Estadísticas",
+      "description": "Estadísticas del sistema (Admin)",
+      "item": [
+        {
+          "name": "Estadísticas del Sistema",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver Logs del Sistema",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/logs?level=info&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "logs"],
+              "query": [
+                {
+                  "key": "level",
+                  "value": "info"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/logs/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "logs", "clear"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 Utilidades",
+      "description": "Endpoints de utilidad y información",
+      "item": [
+        {
+          "name": "Información de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "timestamp": "2025-10-23T19:06:43.813Z",
+  "totalTests": 8,
+  "passed": 8,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "GET / (Información de la API)",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasApiInfo": true,
+        "responseKeys": [
+          "success",
+          "message",
+          "data"
+        ],
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T19:06:44.485Z"
+    },
+    {
+      "name": "GET /api/health",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "hasHealthInfo": false,
+        "responseKeys": [
+          "success",
+          "data"
+        ],
+        "securityHeaders": {
+          "valid": true,
+          "missingHeaders": [],
+          "incorrectHeaders": []
+        }
+      },
+      "timestamp": "2025-10-23T19:06:44.492Z"
+    },
+    {
+      "name": "Verificar Estructura de Información de API",
+      "passed": true,
+      "details": {
+        "hasFields": true,
+        "fieldsCount": 3,
+        "fields": [
+          "success",
+          "message",
+          "data"
+        ],
+        "sampleData": {
+          "success": true,
+          "message": "🏠 Airbnb Backend API - Sistema Completo",
+          "data": {
+            "server": "Airbnb Backend API",
+            "version": "1.0.0",
+            "environment": "development",
+            "endpoints": {
+              "auth": {
+                "register": "POST /api/auth/register",
+                "login": "POST /api/auth/login",
+                "logout": "POST /api/auth/logout",
+                "profile": "GET /api/auth/me"
+              },
+              "notifications": {
+                "list": "GET /api/notifications",
+                "markRead": "PATCH /api/notifications/:id/read",
+                "markAllRead": "PATCH /api/notifications/mark-all-read",
+                "delete": "DELETE /api/notifications/:id",
+                "clearAll": "DELETE /api/notifications/clear-all",
+                "test": "POST /api/notifications/test",
+                "settings": "GET /api/notifications/settings",
+                "updateSettings": "PUT /api/notifications/settings"
+              },
+              "profile": {
+                "update": "PUT /api/profile",
+                "changePassword": "POST /api/profile/change-password",
+                "settings": "GET /api/profile/settings",
+                "updateSettings": "PUT /api/profile/settings"
+              },
+              "search": {
+                "properties": "GET /api/search/properties",
+                "suggestions": "GET /api/search/suggestions",
+                "filters": "GET /api/search/filters"
+              },
+              "properties": {
+                "get": "GET /api/properties/:id",
+                "popular": "GET /api/properties/popular"
+              },
+              "stats": {
+                "system": "GET /api/stats",
+                "logs": "GET /api/stats/logs",
+                "clearLogs": "POST /api/stats/logs/clear"
+              },
+              "reservations": {
+                "create": "POST /api/reservations",
+                "myReservations": "GET /api/reservations/my-reservations",
+                "propertyReservations": "GET /api/reservations/property/:id",
+                "updateStatus": "PATCH /api/reservations/:id/status",
+                "checkAvailability": "GET /api/reservations/check-availability",
+                "calculatePrice": "POST /api/reservations/calculate-price",
+                "stats": "GET /api/reservations/stats"
+              },
+              "reviews": {
+                "create": "POST /api/reviews",
+                "propertyReviews": "GET /api/reviews/property/:id",
+                "userReviews": "GET /api/reviews/user/:id",
+                "propertyStats": "GET /api/reviews/property/:id/stats",
+                "update": "PUT /api/reviews/:id",
+                "delete": "DELETE /api/reviews/:id",
+                "stats": "GET /api/reviews/stats"
+              },
+              "host": {
+                "properties": "GET /api/host/properties",
+                "createProperty": "POST /api/host/properties",
+                "getProperty": "GET /api/host/properties/:id",
+                "updateProperty": "PUT /api/host/properties/:id",
+                "deleteProperty": "DELETE /api/host/properties/:id",
+                "propertyReservations": "GET /api/host/properties/:id/reservations",
+                "propertyReviews": "GET /api/host/properties/:id/reviews",
+                "stats": "GET /api/host/stats"
+              },
+              "favorites": {
+                "add": "POST /api/favorites",
+                "remove": "DELETE /api/favorites/:propertyId",
+                "list": "GET /api/favorites",
+                "checkStatus": "GET /api/favorites/:propertyId/status",
+                "createWishlist": "POST /api/favorites/wishlists",
+                "getWishlists": "GET /api/favorites/wishlists",
+                "getPublicWishlists": "GET /api/favorites/wishlists/public",
+                "getWishlist": "GET /api/favorites/wishlists/:id",
+                "updateWishlist": "PUT /api/favorites/wishlists/:id",
+                "deleteWishlist": "DELETE /api/favorites/wishlists/:id",
+                "addToWishlist": "POST /api/favorites/wishlists/:id/properties",
+                "removeFromWishlist": "DELETE /api/favorites/wishlists/:id/properties/:propertyId",
+                "stats": "GET /api/favorites/stats"
+              },
+              "payments": {
+                "calculate": "POST /api/payments/checkout/calculate",
+                "process": "POST /api/payments/checkout/process",
+                "methods": "GET /api/payments/methods",
+                "transactions": "GET /api/payments/transactions",
+                "transaction": "GET /api/payments/transactions/:id",
+                "refund": "POST /api/payments/transactions/:id/refund"
+              },
+              "cart": {
+                "get": "GET /api/cart",
+                "add": "POST /api/cart/add",
+                "remove": "DELETE /api/cart/remove/:itemId",
+                "update": "PUT /api/cart/update/:itemId",
+                "clear": "DELETE /api/cart/clear",
+                "summary": "GET /api/cart/summary",
+                "item": "GET /api/cart/item/:itemId",
+                "checkAvailability": "POST /api/cart/check-availability",
+                "stats": "GET /api/cart/stats"
+              }
+            },
+            "timestamp": "2025-10-23T19:06:44.495Z"
+          }
+        }
+      },
+      "timestamp": "2025-10-23T19:06:44.496Z"
+    },
+    {
+      "name": "Verificar Estructura de Health Check",
+      "passed": true,
+      "details": {
+        "hasHealthFields": true,
+        "fieldsCount": 2,
+        "fields": [
+          "success",
+          "data"
+        ],
+        "sampleData": {
+          "success": true,
+          "data": {
+            "status": "OK",
+            "message": "Servidor funcionando correctamente",
+            "timestamp": "2025-10-23T19:06:44.498Z"
+          }
+        }
+      },
+      "timestamp": "2025-10-23T19:06:44.499Z"
+    },
+    {
+      "name": "Verificar Headers HTTP",
+      "passed": true,
+      "details": {
+        "hasCORS": true,
+        "isJSON": true,
+        "corsValue": "*",
+        "contentType": "application/json; charset=utf-8"
+      },
+      "timestamp": "2025-10-23T19:06:44.503Z"
+    },
+    {
+      "name": "Verificar Endpoints Públicos",
+      "passed": true,
+      "details": {
+        "apiInfo": {
+          "status": 200,
+          "passed": true
+        },
+        "health": {
+          "status": 200,
+          "passed": true
+        }
+      },
+      "timestamp": "2025-10-23T19:06:44.510Z"
+    },
+    {
+      "name": "Verificar Tiempo de Respuesta",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "responseTime": "2ms",
+        "isFast": true,
+        "threshold": "1000ms"
+      },
+      "timestamp": "2025-10-23T19:06:44.513Z"
+    },
+    {
+      "name": "Verificar Disponibilidad del Servidor",
+      "passed": true,
+      "details": {
+        "status": 200,
+        "serverUp": true
+      },
+      "timestamp": "2025-10-23T19:06:44.517Z"
+    }
+  ]
+}

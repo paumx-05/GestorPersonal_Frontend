@@ -1,0 +1,115 @@
+{
+  "timestamp": "2025-10-21T18:45:42.287Z",
+  "totalTests": 7,
+  "passed": 4,
+  "failed": 3,
+  "tests": [
+    {
+      "name": "1. Login de Admin",
+      "status": "PASSED",
+      "details": {
+        "message": "Login exitoso",
+        "userId": "68f3f23cbd2b413e50624f4e"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:45:36.040Z"
+    },
+    {
+      "name": "2. Calcular Costo del Checkout",
+      "status": "PASSED",
+      "details": {
+        "message": "Cálculo realizado correctamente",
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:45:37.060Z"
+    },
+    {
+      "name": "3. Procesar Pago",
+      "status": "FAILED",
+      "details": {
+        "error": "Error procesando checkout",
+        "status": 500,
+        "fullError": {
+          "success": false,
+          "error": {
+            "message": "Error procesando checkout"
+          }
+        }
+      },
+      "headers": {
+        "content-type": "N/A",
+        "x-powered-by": "N/A",
+        "access-control-allow-origin": "N/A"
+      },
+      "timestamp": "2025-10-21T18:45:38.132Z"
+    },
+    {
+      "name": "4. Obtener Métodos de Pago",
+      "status": "PASSED",
+      "details": {
+        "message": "2 métodos de pago disponibles",
+        "methods": [
+          "paymentMethods",
+          "total"
+        ],
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:45:39.184Z"
+    },
+    {
+      "name": "5. Obtener Historial de Transacciones",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 0 transacciones",
+        "count": 0,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T18:45:40.240Z"
+    },
+    {
+      "name": "6. Obtener Transacción Específica",
+      "status": "FAILED",
+      "details": {
+        "error": "No hay ID de transacción disponible"
+      },
+      "headers": {
+        "content-type": "N/A",
+        "x-powered-by": "N/A",
+        "access-control-allow-origin": "N/A"
+      },
+      "timestamp": "2025-10-21T18:45:41.282Z"
+    },
+    {
+      "name": "7. Procesar Reembolso",
+      "status": "FAILED",
+      "details": {
+        "error": "No hay ID de transacción disponible"
+      },
+      "headers": {
+        "content-type": "N/A",
+        "x-powered-by": "N/A",
+        "access-control-allow-origin": "N/A"
+      },
+      "timestamp": "2025-10-21T18:45:42.286Z"
+    }
+  ]
+}

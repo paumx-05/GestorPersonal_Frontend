@@ -1,0 +1,57 @@
+---
+alwaysApply: false
+---
+Analyze and document this code file following these criteria:
+
+**DOCUMENTATION STRUCTURE:**
+1. **File Summary**: Briefly explain what this file does and its purpose in the application
+2. **Imports and Dependencies**: Comment each import explaining what it's used for
+3. **Interfaces/Types**: Document each interface or defined type with usage examples
+4. **Main Functions**: Explain each function with:
+   - Function purpose
+   - Parameters (type and description)
+   - Return value
+   - Usage example if relevant
+5. **Complex Logic**: Comment complex code blocks line by line
+
+**COMMENT STYLE:**
+- Use JSDoc comments for functions and classes
+- Explain the "why" not just the "what"
+- Use practical examples when helpful
+- Keep language simple and direct
+- Include edge cases or special considerations
+
+**FORMAT:**
+- Comments in English
+- Maximum 2-3 lines per explanation
+- Use emojis occasionally to make it more visual (📝, 🔧, ⚡, etc.)
+- Group related comments
+
+**COMMENT EXAMPLE:**
+```typescript
+/**
+ * 🛒 Adds a product to the shopping cart
+ * @param productId - Unique ID of the product to add
+ * @param quantity - Product quantity (default 1)
+ * @returns Promise<CartItem> - The item added to the cart
+ */
+async function addToCart(productId: string, quantity: number = 1): Promise<CartItem> {
+  // Validate that the product exists before adding it
+  const product = await this.productService.findById(productId);
+  if (!product) {
+    throw new Error(`Product with ID ${productId} not found`);
+  }
+  
+  // Create the new cart item
+  const cartItem: CartItem = {
+    id: generateId(),
+    productId,
+    quantity,
+    addedAt: new Date()
+  };
+  
+  return cartItem;
+}
+```
+
+**GOAL**: That a junior developer can quickly understand what each part of the code does and how to use it correctly.

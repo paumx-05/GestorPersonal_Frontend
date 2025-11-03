@@ -1,0 +1,260 @@
+{
+  "timestamp": "2025-10-21T17:53:16.789Z",
+  "totalTests": 15,
+  "passed": 15,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "1. Login de Admin",
+      "status": "PASSED",
+      "details": {
+        "message": "Login exitoso",
+        "userId": "68f3f23cbd2b413e50624f4e"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:17.344Z"
+    },
+    {
+      "name": "2. Obtener Propiedades Disponibles",
+      "status": "PASSED",
+      "details": {
+        "message": "Se encontraron 1 propiedades",
+        "propertyIds": [
+          "65f0cc30cc30cc30cc30cc30"
+        ]
+      },
+      "headers": {
+        "content-type": "N/A",
+        "x-powered-by": "N/A",
+        "access-control-allow-origin": "N/A"
+      },
+      "timestamp": "2025-10-21T17:53:18.899Z"
+    },
+    {
+      "name": "3. Agregar a Favoritos",
+      "status": "PASSED",
+      "details": {
+        "message": "Favorito agregado correctamente",
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:21.091Z"
+    },
+    {
+      "name": "4. Obtener Favoritos",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 1 favoritos",
+        "count": 1,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:22.144Z"
+    },
+    {
+      "name": "5. Verificar Estado de Favorito",
+      "status": "PASSED",
+      "details": {
+        "message": "Estado verificado correctamente",
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "isFavorite": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:23.183Z"
+    },
+    {
+      "name": "6. Crear Wishlist",
+      "status": "PASSED",
+      "details": {
+        "message": "Wishlist creada correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "name": "Mi Wishlist de Vacaciones QA",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:25.179Z"
+    },
+    {
+      "name": "7. Obtener Wishlists del Usuario",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 4 wishlists",
+        "count": 4,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:26.235Z"
+    },
+    {
+      "name": "8. Obtener Wishlist Específica",
+      "status": "PASSED",
+      "details": {
+        "message": "Wishlist obtenida correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:27.277Z"
+    },
+    {
+      "name": "9. Actualizar Wishlist",
+      "status": "PASSED",
+      "details": {
+        "message": "Wishlist actualizada correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "newName": "Wishlist Actualizada QA",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:29.259Z"
+    },
+    {
+      "name": "10. Agregar Propiedad a Wishlist",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad agregada correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:31.255Z"
+    },
+    {
+      "name": "11. Remover Propiedad de Wishlist",
+      "status": "PASSED",
+      "details": {
+        "message": "Propiedad removida correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:33.241Z"
+    },
+    {
+      "name": "12. Obtener Wishlists Públicas",
+      "status": "PASSED",
+      "details": {
+        "message": "Se obtuvieron 1 wishlists públicas",
+        "count": 1,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:34.289Z"
+    },
+    {
+      "name": "13. Estadísticas de Favoritos",
+      "status": "PASSED",
+      "details": {
+        "message": "Estadísticas obtenidas correctamente",
+        "stats": {
+          "stats": {
+            "userFavorites": 1,
+            "userWishlists": 4,
+            "totalFavorites": 2,
+            "totalWishlists": 5,
+            "averageFavoritesPerUser": 1,
+            "mostFavoritedProperties": [
+              {
+                "propertyId": "65f0cc30cc30cc30cc30cc30",
+                "count": 2
+              }
+            ]
+          }
+        },
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:35.473Z"
+    },
+    {
+      "name": "14. Remover de Favoritos",
+      "status": "PASSED",
+      "details": {
+        "message": "Favorito removido correctamente",
+        "propertyId": "65f0cc30cc30cc30cc30cc30",
+        "userId": "68f3f23cbd2b413e50624f4e",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:37.930Z"
+    },
+    {
+      "name": "15. Eliminar Wishlist",
+      "status": "PASSED",
+      "details": {
+        "message": "Wishlist eliminada correctamente",
+        "wishlistId": "68f7c894a2faad5570a67870",
+        "dbVerified": true,
+        "headerIssues": "OK"
+      },
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-powered-by": "Express/Node.js",
+        "access-control-allow-origin": "*"
+      },
+      "timestamp": "2025-10-21T17:53:39.882Z"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+---
+alwaysApply: false
+---
+I need to access the documentation in the @AirBnb-Backend/ directory to create the milestone1.md for the backend. However, I don't see any files uploaded or specific documentation provided.
+Based on your requirements, here's what I understand as the Product Owner for creating the backend milestone:
+Important Requirements List:
+Project Scope & Complexity
+
+Maximum 5 steps for milestone completion
+Junior-level complexity - simple and understandable code
+Avoid over-engineering - keep solutions lightweight
+Scalable and simple code architecture
+
+Technology Stack
+
+MongoDB - Database (DO NOT USE MongoDB dependencies or connections - use mock data instead for now)
+Express.js - Web framework
+TypeScript - Programming language
+Functional programming preferred over classes/objects
+MVC architecture pattern implementation
+
+API Standards
+
+All routes must comply with REST API standards
+Proper HTTP methods (GET, POST, PUT, DELETE)
+Consistent endpoint naming conventions
+
+Development Approach
+
+Install only necessary dependencies
+Lightweight and scalable solutions
+Functional programming paradigm
+Clear separation of concerns (Model-View-Controller)
+Use mock data and in-memory storage instead of MongoDB connections
+
+Could you please provide access to the documentation in the @AirBnb-Backend/ directory? I need to review the existing documentation to create an appropriate milestone1.md that aligns with the project's current state and requirements.
+Once I have access to the documentation, I'll create a structured milestone1.md with:
+
+Clear objectives
+Specific deliverables
+Technical requirements
+Implementation steps (max 5)
+Acceptance criteria
+```markdown

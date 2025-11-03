@@ -14,7 +14,7 @@
 
 ## 🎯 Reglas de Negocio
 
-### ⚠️ Reglas Críticas que DEBES Implementar
+### ⚠️ Reglas Críticas que DEBES Implementarrrrr
 
 1. **❌ No puedes crear una review de tu propia propiedad**
    - Si `property.host.id` (o `property.hostId`) coincide con `currentUser.id`, **NO mostrar el formulario de review**

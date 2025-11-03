@@ -1,0 +1,172 @@
+{
+  "summary": {
+    "passed": 27,
+    "failed": 0,
+    "total": 27,
+    "successRate": "100.00%"
+  },
+  "tests": [
+    {
+      "name": "GET /api/users - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:48:26.969Z"
+    },
+    {
+      "name": "GET /api/users - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:26.972Z"
+    },
+    {
+      "name": "GET /api/users - Devuelve lista de usuarios",
+      "passed": true,
+      "details": "5 usuarios encontrados",
+      "timestamp": "2025-10-20T18:48:26.972Z"
+    },
+    {
+      "name": "GET /api/users - Incluye paginación",
+      "passed": true,
+      "details": "Datos de paginación presentes",
+      "timestamp": "2025-10-20T18:48:26.972Z"
+    },
+    {
+      "name": "GET /api/users/stats - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:48:27.042Z"
+    },
+    {
+      "name": "GET /api/users/stats - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:27.043Z"
+    },
+    {
+      "name": "GET /api/users/stats - Devuelve estadísticas",
+      "passed": true,
+      "details": "Total usuarios: 6",
+      "timestamp": "2025-10-20T18:48:27.043Z"
+    },
+    {
+      "name": "POST /api/users - Responde correctamente",
+      "passed": true,
+      "details": "Status: 201",
+      "timestamp": "2025-10-20T18:48:27.566Z"
+    },
+    {
+      "name": "POST /api/users - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:27.566Z"
+    },
+    {
+      "name": "POST /api/users - Devuelve datos del usuario creado",
+      "passed": true,
+      "details": "testuser_1760986107043@airbnb.com",
+      "timestamp": "2025-10-20T18:48:27.566Z"
+    },
+    {
+      "name": "POST /api/users - Usuario tiene ID asignado",
+      "passed": true,
+      "details": "ID: 68f683fb35d175d44472c435",
+      "timestamp": "2025-10-20T18:48:27.566Z"
+    },
+    {
+      "name": "GET /api/users/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:48:27.600Z"
+    },
+    {
+      "name": "GET /api/users/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:27.601Z"
+    },
+    {
+      "name": "GET /api/users/:id - Devuelve datos del usuario",
+      "passed": true,
+      "details": "testuser_1760986107043@airbnb.com",
+      "timestamp": "2025-10-20T18:48:27.601Z"
+    },
+    {
+      "name": "GET /api/users/:id - ID coincide con el solicitado",
+      "passed": true,
+      "details": "ID: 68f683fb35d175d44472c435",
+      "timestamp": "2025-10-20T18:48:27.601Z"
+    },
+    {
+      "name": "PUT /api/users/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:48:27.673Z"
+    },
+    {
+      "name": "PUT /api/users/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:27.673Z"
+    },
+    {
+      "name": "PUT /api/users/:id - Devuelve datos actualizados",
+      "passed": true,
+      "details": "Usuario Test QA Actualizado",
+      "timestamp": "2025-10-20T18:48:27.673Z"
+    },
+    {
+      "name": "PUT /api/users/:id - Nombre actualizado correctamente",
+      "passed": true,
+      "details": "Nombre: Usuario Test QA Actualizado",
+      "timestamp": "2025-10-20T18:48:27.674Z"
+    },
+    {
+      "name": "DELETE /api/users/:id - Responde correctamente",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-10-20T18:48:27.741Z"
+    },
+    {
+      "name": "DELETE /api/users/:id - Encabezados correctos",
+      "passed": true,
+      "details": "Headers presentes",
+      "timestamp": "2025-10-20T18:48:27.741Z"
+    },
+    {
+      "name": "DELETE /api/users/:id - Mensaje de confirmación",
+      "passed": true,
+      "details": "Usuario eliminado exitosamente",
+      "timestamp": "2025-10-20T18:48:27.741Z"
+    },
+    {
+      "name": "Conexión a MongoDB",
+      "passed": true,
+      "details": "Conectado exitosamente",
+      "timestamp": "2025-10-20T18:48:28.242Z"
+    },
+    {
+      "name": "Usuario admin existe en BD",
+      "passed": true,
+      "details": "ID: 68f3f23cbd2b413e50624f4e",
+      "timestamp": "2025-10-20T18:48:28.526Z"
+    },
+    {
+      "name": "Total de usuarios en BD",
+      "passed": true,
+      "details": "Total: 7 usuarios",
+      "timestamp": "2025-10-20T18:48:28.560Z"
+    },
+    {
+      "name": "Usuario de prueba eliminado correctamente",
+      "passed": true,
+      "details": "Usuario aún existe (soft delete)",
+      "timestamp": "2025-10-20T18:48:28.592Z"
+    },
+    {
+      "name": "Desconexión de MongoDB",
+      "passed": true,
+      "details": "Desconectado exitosamente",
+      "timestamp": "2025-10-20T18:48:28.609Z"
+    }
+  ]
+}
