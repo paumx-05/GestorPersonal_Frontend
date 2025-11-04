@@ -96,7 +96,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
       {/* Información personal */}
       <section>
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <User className="w-5 h-5 mr-2" />
+          <User className="w-5 h-5 mr-2 text-[#FF385C]" />
           Información del huésped
         </h3>
         
@@ -111,8 +111,8 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                errors.firstName ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.firstName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
               }`}
               placeholder="Tu nombre"
             />
@@ -131,8 +131,8 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                errors.lastName ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.lastName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
               }`}
               placeholder="Tu apellido"
             />
@@ -146,7 +146,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
       {/* Información de contacto */}
       <section>
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Mail className="w-5 h-5 mr-2" />
+          <Mail className="w-5 h-5 mr-2 text-[#FF385C]" />
           Información de contacto
         </h3>
         
@@ -161,8 +161,8 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.email ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
               }`}
               placeholder="tu@email.com"
             />
@@ -182,8 +182,8 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                errors.phone ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.phone ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
               }`}
               placeholder="+1 (555) 123-4567"
             />
@@ -197,7 +197,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
       {/* Información de pago */}
       <section>
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <CreditCard className="w-5 h-5 mr-2" />
+          <CreditCard className="w-5 h-5 mr-2 text-[#FF385C]" />
           Información de pago
         </h3>
         
@@ -210,7 +210,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all hover:border-gray-400"
             >
               <option value="credit">Tarjeta de crédito</option>
               <option value="debit">Tarjeta de débito</option>
@@ -227,8 +227,8 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               name="cardNumber"
               value={formData.cardNumber}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                errors.cardNumber ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.cardNumber ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
               }`}
               placeholder="1234 5678 9012 3456"
               maxLength={19}
@@ -249,9 +249,9 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
                 name="expiryDate"
                 value={formData.expiryDate}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                  errors.expiryDate ? 'border-red-500' : 'border-gray-300'
-                }`}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.expiryDate ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+              }`}
                 placeholder="MM/AA"
                 maxLength={5}
               />
@@ -270,9 +270,9 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
                 name="cvv"
                 value={formData.cvv}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent ${
-                  errors.cvv ? 'border-red-500' : 'border-gray-300'
-                }`}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all ${
+                errors.cvv ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+              }`}
                 placeholder="123"
                 maxLength={4}
               />
@@ -287,7 +287,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
       {/* Solicitudes especiales */}
       <section>
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <MessageSquare className="w-5 h-5 mr-2" />
+          <MessageSquare className="w-5 h-5 mr-2 text-[#FF385C]" />
           Solicitudes especiales (opcional)
         </h3>
         
@@ -297,7 +297,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
             value={formData.specialRequests}
             onChange={handleInputChange}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF385C] focus:border-[#FF385C] transition-all hover:border-gray-400 resize-none"
             placeholder="¿Hay algo que el anfitrión deba saber? (ej: llegada tardía, necesidades especiales, etc.)"
           />
         </div>
@@ -308,7 +308,7 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#FF385C] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#E31C5F] focus:ring-2 focus:ring-[#FF385C] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-[#FF385C] text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-[#E31C5F] focus:ring-2 focus:ring-[#FF385C] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center">
@@ -316,11 +316,11 @@ export default function CheckoutForm({ onSubmit }: CheckoutFormProps) {
               Procesando reserva...
             </div>
           ) : (
-            `Confirmar reserva por $${formData.paymentMethod === 'credit' ? '1,300' : '1,300'}`
+            'Confirmar reserva'
           )}
         </button>
         
-        <p className="text-xs text-gray-500 text-center mt-2">
+        <p className="text-xs text-gray-500 text-center mt-3">
           Al confirmar, aceptas nuestros términos de servicio y política de cancelación
         </p>
       </div>

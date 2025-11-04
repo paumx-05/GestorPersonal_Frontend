@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { propertyService, type Property } from '@/lib/api/properties';
 
 // Interfaz para los datos de búsqueda
@@ -37,6 +37,10 @@ interface SearchContextType {
   // Estados de UI
   isSearching: boolean;
   setIsSearching: (searching: boolean) => void;
+  isLoading: boolean;
+  
+  // Propiedades totales (para referencia)
+  allProperties: Property[];
   
   // Funciones
   performSearch: () => void;
@@ -124,47 +128,93 @@ export const SearchProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Filtrar propiedades basado en los criterios actuales
+  // 🔧 FIX: Usar useMemo para recalcular cuando cambian los filtros o datos de búsqueda
   // 🔧 FIX: Asegurar que no haya duplicados después del filtrado
-  const rawFiltered = propertyService.filterProperties(allProperties, {
-    location: searchData.location,
-    checkIn: searchData.checkIn,
-    checkOut: searchData.checkOut,
-    guests: searchData.guests,
-    ...filters
-  });
-  
-  // Eliminar duplicados después del filtrado (por si acaso)
-  const filteredProperties = rawFiltered.filter((property, index, self) =>
-    index === self.findIndex((p) => p.id === property.id)
-  );
+  // 🔧 FIX: Agregar logs para debugging de búsqueda por ubicación
+  const filteredProperties = useMemo(() => {
+    // Solo filtrar por ubicación si hay un término de búsqueda
+    const searchFilters = {
+      location: searchData.location?.trim() || undefined, // Solo pasar si hay valor
+      checkIn: searchData.checkIn,
+      checkOut: searchData.checkOut,
+      guests: searchData.guests,
+      ...filters
+    };
+    
+    // Log para debugging
+    if (searchData.location && searchData.location.trim()) {
+      console.log('🔍 [SearchContext] Filtrando por ubicación:', searchData.location.trim());
+      console.log('🔍 [SearchContext] Total propiedades antes de filtrar:', allProperties.length);
+    }
+    
+    const rawFiltered = propertyService.filterProperties(allProperties, searchFilters);
+    
+    // Log para debugging
+    if (searchData.location && searchData.location.trim()) {
+      console.log('✅ [SearchContext] Propiedades después de filtrar:', rawFiltered.length);
+      if (rawFiltered.length === 0 && allProperties.length > 0) {
+        console.warn('⚠️ [SearchContext] No se encontraron propiedades. Verificando campos de ubicación...');
+        // Log de ejemplo de propiedades para debugging
+        if (allProperties.length > 0) {
+          const sampleProp = allProperties[0];
+          console.log('📋 [SearchContext] Ejemplo de propiedad:', {
+            id: sampleProp.id,
+            title: sampleProp.title,
+            city: sampleProp.city,
+            location: sampleProp.location,
+            locationType: typeof sampleProp.location
+          });
+        }
+      }
+    }
+    
+    // Eliminar duplicados después del filtrado (por si acaso)
+    return rawFiltered.filter((property, index, self) =>
+      index === self.findIndex((p) => p.id === property.id)
+    );
+  }, [allProperties, searchData.location, searchData.checkIn, searchData.checkOut, searchData.guests, filters]);
 
   // Función para realizar búsqueda
   const performSearch = async () => {
     setIsSearching(true);
     
     try {
-      // Intentar búsqueda en el backend primero
-      const searchResults = await propertyService.searchProperties({
-        location: searchData.location,
-        checkIn: searchData.checkIn,
-        checkOut: searchData.checkOut,
-        guests: searchData.guests,
-        ...filters
-      });
+      // Si hay ubicación, intentar búsqueda en el backend primero
+      const hasLocation = searchData.location && searchData.location.trim();
       
-      if (searchResults.length > 0) {
-        // 🔧 FIX: Eliminar duplicados de los resultados de búsqueda
-        const uniqueResults = searchResults.filter((property, index, self) =>
-          index === self.findIndex((p) => p.id === property.id)
-        );
-        setAllProperties(uniqueResults);
-        console.log('✅ [SearchContext] Búsqueda backend exitosa (sin duplicados):', uniqueResults.length);
-      } else {
-        console.log('⚠️ [SearchContext] Sin resultados del backend, usando filtros locales');
+      if (hasLocation) {
+        console.log('🔍 [SearchContext] Realizando búsqueda en backend con ubicación:', searchData.location.trim());
+        const searchResults = await propertyService.searchProperties({
+          location: searchData.location.trim(),
+          checkIn: searchData.checkIn,
+          checkOut: searchData.checkOut,
+          guests: searchData.guests,
+          ...filters
+        });
+        
+        if (searchResults.length > 0) {
+          // 🔧 FIX: Eliminar duplicados de los resultados de búsqueda
+          const uniqueResults = searchResults.filter((property, index, self) =>
+            index === self.findIndex((p) => p.id === property.id)
+          );
+          setAllProperties(uniqueResults);
+          console.log('✅ [SearchContext] Búsqueda backend exitosa (sin duplicados):', uniqueResults.length);
+          setIsSearching(false);
+          return; // Salir temprano si hay resultados del backend
+        } else {
+          console.log('⚠️ [SearchContext] Backend no devolvió resultados, usando filtrado local');
+        }
       }
+      
+      // Si no hay resultados del backend o no hay ubicación, usar filtrado local
+      // NO recargar todas las propiedades, usar las que ya tenemos
+      // El filtrado local se aplicará automáticamente a través de useMemo
+      console.log('✅ [SearchContext] Aplicando filtrado local a propiedades existentes');
+      
     } catch (error) {
       console.error('💥 [SearchContext] Error en búsqueda backend:', error);
-      console.log('⚠️ [SearchContext] Usando filtros locales como fallback');
+      console.log('⚠️ [SearchContext] Usando filtrado local como fallback');
+      // No recargar propiedades, usar las que ya tenemos
     } finally {
       setIsSearching(false);
     }

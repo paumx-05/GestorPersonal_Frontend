@@ -65,7 +65,7 @@ export default function Home() {
       <div className="h-1 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
       
       {/* Sección de Resultados con Filtros */}
-      <section className="py-6 md:py-12 bg-white">
+      <section id="search-results" className="py-6 md:py-12 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Filtros Airbnb */}
           <AirbnbFilters />

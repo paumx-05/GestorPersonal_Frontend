@@ -333,9 +333,45 @@ export const propertyService = {
     }
 
     return properties.filter(property => {
-      // Filtro por ubicación (ciudad)
-      if (filters.location && property.city && !property.city.toLowerCase().includes(filters.location.toLowerCase())) {
-        return false;
+      // Filtro por ubicación (busca en city, location string y location object)
+      // Solo filtrar si hay un término de búsqueda de ubicación
+      if (filters.location && filters.location.trim()) {
+        const searchTerm = filters.location.toLowerCase().trim();
+        let matchesLocation = false;
+        
+        // Buscar en city (campo principal)
+        if (property.city && property.city.toLowerCase().includes(searchTerm)) {
+          matchesLocation = true;
+        }
+        
+        // Buscar en location (string) - puede contener la ciudad completa
+        if (typeof property.location === 'string' && property.location.toLowerCase().includes(searchTerm)) {
+          matchesLocation = true;
+        }
+        
+        // Buscar en location (objeto) usando getLocationString
+        if (typeof property.location === 'object' && property.location) {
+          const locationString = getLocationString(property.location).toLowerCase();
+          if (locationString && locationString.includes(searchTerm)) {
+            matchesLocation = true;
+          }
+          
+          // También buscar en campos específicos del objeto location
+          if (property.location.city && property.location.city.toLowerCase().includes(searchTerm)) {
+            matchesLocation = true;
+          }
+          if (property.location.address && property.location.address.toLowerCase().includes(searchTerm)) {
+            matchesLocation = true;
+          }
+          if (property.location.country && property.location.country.toLowerCase().includes(searchTerm)) {
+            matchesLocation = true;
+          }
+        }
+        
+        // Si no coincide con ningún campo de ubicación, excluir esta propiedad
+        if (!matchesLocation) {
+          return false;
+        }
       }
 
       // Filtro por número de huéspedes

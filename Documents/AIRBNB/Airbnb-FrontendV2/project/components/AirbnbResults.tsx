@@ -7,6 +7,7 @@ import { useSearch } from '@/context/SearchContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Heart } from 'lucide-react';
 import { getRealPropertyRating } from '@/lib/utils/propertyRatings';
+import { getPropertyPreviewImage } from '@/lib/utils/propertyImages';
 
 // Componente para mostrar una tarjeta de propiedad individual
 const PropertyCard = ({ property }: { property: Property }) => {
@@ -99,7 +100,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
       {/* Imagen de la propiedad */}
       <div className="relative h-40 sm:h-48 bg-gray-200">
         <img
-          src={property.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+          src={getPropertyPreviewImage(property.id, property.images, property.imageUrl)}
           alt={property.title}
           className="w-full h-full object-cover"
           onError={(e) => {

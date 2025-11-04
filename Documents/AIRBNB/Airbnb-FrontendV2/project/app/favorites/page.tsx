@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import { getLocationString } from '@/lib/api/properties';
+import { getPropertyPreviewImage } from '@/lib/utils/propertyImages';
 
 /**
  * Página de Favoritos
@@ -134,7 +135,7 @@ export default function FavoritesPage() {
                   {/* Imagen */}
                   <div className="relative h-48 bg-gray-700">
                     <img
-                      src={property.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                      src={getPropertyPreviewImage(property.id, property.images, property.imageUrl)}
                       alt={property.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {

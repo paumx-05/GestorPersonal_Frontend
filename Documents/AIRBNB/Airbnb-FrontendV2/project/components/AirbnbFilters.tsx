@@ -27,10 +27,15 @@ const AirbnbFilters = () => {
 
   // Función para manejar cambios en los filtros
   const handleFilterChange = (field: keyof AirbnbFilters, value: any) => {
-    setFilters({
+    const newFilters = {
       ...filters,
       [field]: value
-    });
+    };
+    setFilters(newFilters);
+    
+    // Aplicar filtros automáticamente cuando cambian
+    // Los filtros se aplicarán automáticamente porque filteredProperties se recalcula
+    // basado en los filtros actuales en el SearchContext
   };
 
   // Función para manejar amenidades (toggle)
