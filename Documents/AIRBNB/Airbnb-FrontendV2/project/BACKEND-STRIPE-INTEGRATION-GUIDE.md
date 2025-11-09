@@ -39,7 +39,7 @@ Agregar en el archivo `.env` del backend:
 
 ```env
 # Stripe Secret Key (NUNCA exponer esta clave en el frontend)
-STRIPE_SECRET_KEY=sk_test_51SRF80BKr0sSqmIZYTdA95PzpoGwrJ9SRepCx70oDiZixvSxRGbGos40M2BQCCeuLY0vYnCYmkjavPYhU3wh0VsG00ehrDIg4J
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
 
 # Stripe Publishable Key (esta se usa en el frontend)
 STRIPE_PUBLISHABLE_KEY=pk_test_51SRF80BKr0sSqmIZYTdA95PzpoGwrJ9SRepCx70oDiZixvSxRGbGos40M2BQCCeuLY0vYnCYmkjavPYhU3wh0VsG00ehrDIg4J
