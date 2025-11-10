@@ -40,7 +40,15 @@ export const config = {
   
   // Configuración de seguridad
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10),
-  sessionSecret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production'
+  sessionSecret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+  
+  // Configuración de Stripe
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY || '',
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    apiVersion: process.env.STRIPE_API_VERSION || '2025-10-29.clover'
+  }
 };
 
 export default config;

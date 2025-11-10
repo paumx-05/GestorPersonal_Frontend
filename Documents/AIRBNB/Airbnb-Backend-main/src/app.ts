@@ -153,6 +153,8 @@ app.get('/', (req, res) => {
         payments: {
           calculate: 'POST /api/payments/checkout/calculate',
           process: 'POST /api/payments/checkout/process',
+          createIntent: 'POST /api/payments/checkout/create-intent',
+          confirm: 'POST /api/payments/checkout/confirm',
           methods: 'GET /api/payments/methods',
           transactions: 'GET /api/payments/transactions',
           transaction: 'GET /api/payments/transactions/:id',

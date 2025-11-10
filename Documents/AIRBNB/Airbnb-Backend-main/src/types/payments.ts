@@ -19,12 +19,14 @@ export interface Transaction {
   amount: number;
   currency: string;
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
-  paymentMethod: PaymentMethod;
+  paymentMethod: PaymentMethod | string;
   description: string;
   createdAt: string;
   updatedAt: string;
   transactionId: string;
   failureReason?: string;
+  stripeChargeId?: string;
+  stripePaymentIntentId?: string;
 }
 
 export interface CheckoutData {

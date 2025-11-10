@@ -18,10 +18,12 @@ export interface ITransaction extends Document {
   reservationId: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  status: 'pending' | 'completed' | 'failed' | 'refunded' | 'processing';
   paymentMethod: string;
   transactionId: string;
   description: string;
+  stripeChargeId?: string;
+  stripePaymentIntentId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -88,7 +90,7 @@ const TransactionSchema = new Schema<ITransaction>({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'refunded'],
+    enum: ['pending', 'completed', 'failed', 'refunded', 'processing'],
     default: 'pending'
   },
   paymentMethod: {
@@ -104,6 +106,14 @@ const TransactionSchema = new Schema<ITransaction>({
     type: String,
     required: true,
     maxlength: 500
+  },
+  stripeChargeId: {
+    type: String,
+    required: false
+  },
+  stripePaymentIntentId: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true,

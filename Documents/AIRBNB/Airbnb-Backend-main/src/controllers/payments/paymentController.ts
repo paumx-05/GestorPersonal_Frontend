@@ -3,6 +3,8 @@ import { PaymentRepositoryFactory } from '../../models/factories/PaymentReposito
 import { ReservationRepositoryFactory } from '../../models/factories/ReservationRepositoryFactory';
 import { NotificationRepositoryFactory } from '../../models/factories/NotificationRepositoryFactory';
 import { CheckoutData } from '../../types/payments';
+import { createPaymentIntent, getPaymentIntent } from '../../utils/stripe';
+import { getPropertyById, checkAvailability } from '../../models';
 
 const paymentRepo = PaymentRepositoryFactory.create();
 const reservationRepo = ReservationRepositoryFactory.create();
@@ -417,6 +419,344 @@ export const deletePaymentMethodController = async (req: Request, res: Response)
     res.status(500).json({
       success: false,
       error: { message: 'Error eliminando método de pago' }
+    });
+  }
+};
+
+// POST /api/payments/checkout/create-intent
+export const createPaymentIntentController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId;
+    const { propertyId, checkIn, checkOut, guests, reservationId } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: { message: 'Usuario no autenticado' }
+      });
+      return;
+    }
+
+    // Validar datos de entrada
+    if (!propertyId || !checkIn || !checkOut || !guests) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Faltan datos requeridos: propertyId, checkIn, checkOut, guests' }
+      });
+      return;
+    }
+
+    // Validar formato de fechas
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    
+    if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Formato de fechas inválido' }
+      });
+      return;
+    }
+
+    if (checkInDate >= checkOutDate) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'La fecha de check-out debe ser posterior a la de check-in' }
+      });
+      return;
+    }
+
+    // Obtener la propiedad
+    const property = await getPropertyById(propertyId);
+    if (!property) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Propiedad no encontrada' }
+      });
+      return;
+    }
+
+    // ✅ Verificar que la propiedad tiene un precio válido
+    const pricePerNight = property.pricePerNight || property.price || 0;
+    if (!pricePerNight || pricePerNight <= 0) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'La propiedad no tiene un precio válido' }
+      });
+      return;
+    }
+
+    // Verificar disponibilidad
+    const isAvailable = await checkAvailability(propertyId, checkIn, checkOut);
+    if (!isAvailable) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'La propiedad no está disponible para las fechas seleccionadas' }
+      });
+      return;
+    }
+
+    // ✅ Calcular pricing usando el precio REAL de la propiedad
+    const pricing = await paymentRepo.calculatePricing(propertyId, checkIn, checkOut, guests);
+
+    // Convertir a centavos (Stripe usa centavos)
+    const amountInCents = Math.round(pricing.total * 100);
+
+    // ✅ Logs detallados para verificación (según instrucciones)
+    console.log('🔍 [Backend] ============================================');
+    console.log('🔍 [Backend] Creando Payment Intent');
+    console.log('🔍 [Backend] Property ID:', propertyId);
+    console.log('🔍 [Backend] Precio por noche (desde BD):', pricePerNight);
+    console.log('🔍 [Backend] Noches:', pricing.nights);
+    console.log('🔍 [Backend] Subtotal:', pricing.subtotal);
+    console.log('🔍 [Backend] Tarifa de limpieza (5%):', pricing.cleaningFee);
+    console.log('🔍 [Backend] Tarifa de servicio (8%):', pricing.serviceFee);
+    console.log('🔍 [Backend] Impuestos (12%):', pricing.taxes);
+    console.log('🔍 [Backend] Total:', pricing.total);
+    console.log('🔍 [Backend] ============================================');
+    console.log('🔍 [Backend] Monto para Stripe (centavos):', amountInCents);
+    console.log('🔍 [Backend] Monto para Stripe (dólares):', amountInCents / 100);
+
+    // ✅ Crear Payment Intent con Stripe usando el monto calculado (precio real + impuestos + servicios)
+    const paymentIntent = await createPaymentIntent({
+      amount: amountInCents,
+      currency: pricing.currency,
+      metadata: {
+        userId,
+        propertyId,
+        reservationId: reservationId || '',
+        checkIn,
+        checkOut,
+        guests: guests.toString(),
+        // Campos adicionales en metadata (Stripe permite campos adicionales)
+        pricePerNight: pricePerNight.toString(),  // Guardar precio por noche para referencia
+        totalNights: pricing.nights.toString(),
+        subtotal: pricing.subtotal.toFixed(2),
+        cleaningFee: pricing.cleaningFee.toFixed(2),
+        serviceFee: pricing.serviceFee.toFixed(2),
+        taxes: pricing.taxes.toFixed(2),
+        total: pricing.total.toFixed(2)
+      }
+    });
+
+    const clientSecret = paymentIntent.client_secret;
+    const paymentIntentId = paymentIntent.id;
+
+    if (!clientSecret) {
+      console.error('❌ Error: Stripe no devolvió un clientSecret');
+      res.status(500).json({
+        success: false,
+        error: { message: 'Error creando payment intent' }
+      });
+      return;
+    }
+
+    console.log('✅ [Backend] Payment Intent creado exitosamente');
+    console.log('✅ [Backend] PaymentIntentId:', paymentIntentId);
+    console.log('✅ [Backend] Monto cobrado por Stripe:', amountInCents / 100, 'USD');
+    console.log(`🔑 [Backend] Client Secret (primeros 30 chars): ${clientSecret.substring(0, 30)}...`);
+
+    // Crear transacción en la base de datos
+    const transaction = await paymentRepo.createTransaction({
+      userId,
+      propertyId,
+      reservationId: reservationId || 'pending',
+      amount: pricing.total,
+      currency: pricing.currency,
+      status: 'processing',
+      paymentMethod: 'stripe',
+      transactionId: `txn_${Date.now()}`,
+      description: `Reserva de propiedad ${propertyId}`,
+      stripePaymentIntentId: paymentIntentId
+    } as any);
+
+    // Devolver respuesta
+    res.status(200).json({
+      success: true,
+      data: {
+        clientSecret,
+        paymentIntentId,
+        transactionId: transaction.id,
+        amount: pricing.total,
+        currency: pricing.currency,
+        pricing
+      }
+    });
+  } catch (error: any) {
+    console.error('❌ Error creando payment intent:', error);
+    
+    // Manejar errores específicos de Stripe
+    if (error.type === 'StripeCardError') {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Tarjeta rechazada: ' + error.message }
+      });
+      return;
+    }
+
+    if (error.type === 'StripeInvalidRequestError') {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Error en la solicitud: ' + error.message }
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      error: { message: error.message || 'Error creando payment intent' }
+    });
+  }
+};
+
+// POST /api/payments/checkout/confirm
+export const confirmPaymentAndCreateBooking = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId;
+    const { paymentIntentId, checkIn, checkOut, guests, guestInfo } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: { message: 'Usuario no autenticado' }
+      });
+      return;
+    }
+
+    // Validar datos de entrada
+    if (!paymentIntentId) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Falta paymentIntentId' }
+      });
+      return;
+    }
+
+    console.log(`🔍 Verificando Payment Intent en Stripe: ${paymentIntentId}`);
+
+    // Obtener Payment Intent de Stripe
+    const paymentIntent = await getPaymentIntent(paymentIntentId);
+
+    // Validar ownership del Payment Intent
+    if (paymentIntent.metadata.userId !== userId) {
+      res.status(403).json({
+        success: false,
+        error: { message: 'Este Payment Intent no pertenece al usuario actual' }
+      });
+      return;
+    }
+
+    // Verificar que el pago fue exitoso
+    if (paymentIntent.status !== 'succeeded') {
+      res.status(400).json({
+        success: false,
+        error: { 
+          message: `El pago no fue exitoso. Estado: ${paymentIntent.status}`,
+          status: paymentIntent.status
+        }
+      });
+      return;
+    }
+
+    console.log(`✅ Estado del pago: ${paymentIntent.status}`);
+    console.log(`💰 Monto pagado: ${paymentIntent.amount / 100} ${paymentIntent.currency}`);
+
+    const propertyId = paymentIntent.metadata.propertyId;
+    const checkInFromMetadata = paymentIntent.metadata.checkIn;
+    const checkOutFromMetadata = paymentIntent.metadata.checkOut;
+    const guestsFromMetadata = parseInt(paymentIntent.metadata.guests || '1');
+
+    // Usar fechas del metadata si no se proporcionan
+    const finalCheckIn = checkIn || checkInFromMetadata;
+    const finalCheckOut = checkOut || checkOutFromMetadata;
+    const finalGuests = guests || guestsFromMetadata;
+
+    // Verificar disponibilidad nuevamente antes de crear la reserva
+    const isAvailable = await checkAvailability(propertyId, finalCheckIn, finalCheckOut);
+    if (!isAvailable) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'La propiedad ya no está disponible para las fechas seleccionadas' }
+      });
+      return;
+    }
+
+    // Obtener la propiedad para obtener el hostId
+    const property = await getPropertyById(propertyId);
+    if (!property) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Propiedad no encontrada' }
+      });
+      return;
+    }
+
+    const hostId = property.hostId || (property as any).host?.id;
+
+    // Crear la reserva
+    const reservation = await reservationRepo.createReservation({
+      userId,
+      propertyId,
+      hostId: hostId || 'unknown',
+      checkIn: finalCheckIn,
+      checkOut: finalCheckOut,
+      guests: finalGuests,
+      totalPrice: paymentIntent.amount / 100,
+      status: 'confirmed',
+      paymentStatus: 'paid'
+    });
+
+    // Actualizar la transacción
+    const chargeId = paymentIntent.latest_charge;
+    const transactions = await paymentRepo.getUserTransactions(userId);
+    const transaction = transactions.find(t => 
+      (t as any).stripePaymentIntentId === paymentIntentId
+    );
+
+    if (transaction) {
+      await paymentRepo.updateTransactionStatus(transaction.id, 'completed');
+      // Actualizar con chargeId si existe
+      if (chargeId && typeof chargeId === 'string') {
+        // Note: We might need to update the repository to support updating these fields
+        // For now, the transaction is marked as completed
+      }
+    }
+
+    // Crear notificación
+    await notificationRepo.createNotification({
+      userId,
+      type: 'payment',
+      title: 'Pago confirmado',
+      message: 'Tu pago ha sido confirmado y tu reserva está activa.',
+      isRead: false,
+      data: {
+        reservationId: reservation.id,
+        paymentIntentId
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        reservation,
+        transaction: transaction || null,
+        message: 'Pago confirmado y reserva creada exitosamente'
+      }
+    });
+  } catch (error: any) {
+    console.error('❌ Error confirmando pago:', error);
+
+    if (error.type === 'StripeInvalidRequestError' && error.message.includes('No such payment_intent')) {
+      res.status(404).json({
+        success: false,
+        error: { message: 'Payment Intent no encontrado' }
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      error: { message: error.message || 'Error confirmando pago y creando reserva' }
     });
   }
 };

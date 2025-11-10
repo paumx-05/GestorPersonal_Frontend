@@ -7,7 +7,9 @@ import {
   deletePaymentMethodController,
   getTransactionsController,
   getTransactionController,
-  refundTransactionController
+  refundTransactionController,
+  createPaymentIntentController,
+  confirmPaymentAndCreateBooking
 } from '../../controllers/payments/paymentController';
 import { authenticateToken } from '../../middleware/auth/authMiddleware';
 
@@ -19,6 +21,8 @@ router.use(authenticateToken);
 // Rutas de checkout
 router.post('/checkout/calculate', calculateCheckout);
 router.post('/checkout/process', processCheckout);
+router.post('/checkout/create-intent', createPaymentIntentController);
+router.post('/checkout/confirm', confirmPaymentAndCreateBooking);
 
 // Rutas de métodos de pago
 router.get('/methods', getPaymentMethodsController);

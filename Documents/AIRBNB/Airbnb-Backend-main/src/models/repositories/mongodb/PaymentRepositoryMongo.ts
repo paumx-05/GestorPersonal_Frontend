@@ -5,6 +5,7 @@
 import { IPaymentRepository } from '../../interfaces/IPaymentRepository';
 import { PaymentMethod, Transaction, CheckoutData } from '../../../types/payments';
 import { PaymentMethodModel, TransactionModel } from '../../schemas/PaymentSchema';
+import { getPropertyById } from '../../../models';
 
 export class PaymentRepositoryMongo implements IPaymentRepository {
   async addPaymentMethod(userId: string, paymentData: Omit<PaymentMethod, 'id' | 'createdAt'>): Promise<PaymentMethod> {
@@ -62,17 +63,39 @@ export class PaymentRepositoryMongo implements IPaymentRepository {
     total: number;
     currency: string;
   }> {
-    const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-    const basePrice = 100;
-    const subtotal = basePrice * nights;
-    const cleaningFee = 25;
-    const serviceFee = subtotal * 0.1;
-    const taxes = (subtotal + cleaningFee + serviceFee) * 0.1;
+    // Calcular número de noches
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+
+    // ✅ Obtener la propiedad desde la base de datos para usar el precio real
+    const property = await getPropertyById(propertyId);
+    
+    if (!property) {
+      throw new Error('Propiedad no encontrada');
+    }
+
+    // ✅ Verificar que la propiedad tiene un precio válido
+    const pricePerNight = property.pricePerNight || property.price || 0;
+    
+    if (!pricePerNight || pricePerNight <= 0) {
+      throw new Error('La propiedad no tiene un precio válido');
+    }
+
+    // ✅ Calcular subtotal usando el precio REAL de la propiedad
+    const subtotal = pricePerNight * nights;
+
+    // ✅ Calcular tarifas e impuestos (según las instrucciones: 5%, 8%, 12%)
+    const cleaningFee = Math.round(subtotal * 0.05 * 100) / 100;  // 5% del subtotal
+    const serviceFee = Math.round(subtotal * 0.08 * 100) / 100;   // 8% del subtotal
+    const taxes = Math.round(subtotal * 0.12 * 100) / 100;        // 12% del subtotal
+
+    // ✅ Calcular total final
     const total = subtotal + cleaningFee + serviceFee + taxes;
 
     return {
       nights,
-      basePrice,
+      basePrice: pricePerNight, // ✅ Precio real de la propiedad
       subtotal,
       cleaningFee,
       serviceFee,
@@ -169,8 +192,10 @@ export class PaymentRepositoryMongo implements IPaymentRepository {
       paymentMethod: mongoTransaction.paymentMethod,
       transactionId: mongoTransaction.transactionId,
       description: mongoTransaction.description,
+      stripeChargeId: mongoTransaction.stripeChargeId,
+      stripePaymentIntentId: mongoTransaction.stripePaymentIntentId,
       createdAt: mongoTransaction.createdAt.toISOString(),
       updatedAt: mongoTransaction.updatedAt.toISOString()
-    };
+    } as any;
   }
 }
