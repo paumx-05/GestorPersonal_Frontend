@@ -5,6 +5,8 @@ import { connectDatabase } from './config/database';
 import { exampleRoutes } from './routes/example.routes';
 import { authRoutes } from './routes/auth.routes';
 import { usersRoutes } from './routes/users.routes';
+import { amigoRoutes } from './routes/amigo.routes';
+import { gastoRoutes } from './routes/gasto.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -26,6 +28,8 @@ app.get('/', (_req, res) => {
       health: '/health',
       auth: '/api/auth',
       users: '/api/users',
+      amigos: '/api/amigos',
+      gastos: '/api/gastos',
       example: '/api/example'
     },
     timestamp: new Date().toISOString()
@@ -36,6 +40,8 @@ app.get('/', (_req, res) => {
 app.use('/api/example', exampleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/amigos', amigoRoutes);
+app.use('/api/gastos', gastoRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
