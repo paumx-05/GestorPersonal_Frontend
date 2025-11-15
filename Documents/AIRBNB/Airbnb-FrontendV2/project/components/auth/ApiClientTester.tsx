@@ -1,11 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/config';
 
 export const ApiClientTester: React.FC = () => {
   const [testResult, setTestResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenInfo, setTokenInfo] = useState<{
+    hasToken: boolean;
+    tokenPreview: string | null;
+  }>({
+    hasToken: false,
+    tokenPreview: null
+  });
+
+  // Cargar información del token solo en el cliente
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('airbnb_auth_token');
+      setTokenInfo({
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : null
+      });
+    }
+  }, []);
 
   const testApiClient = async () => {
     setIsLoading(true);
@@ -50,6 +68,12 @@ export const ApiClientTester: React.FC = () => {
     setTestResult('Probando fetch directo...');
     
     try {
+      if (typeof window === 'undefined') {
+        setTestResult('❌ No disponible en servidor');
+        setIsLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem('airbnb_auth_token');
       
       if (!token) {
@@ -86,12 +110,14 @@ export const ApiClientTester: React.FC = () => {
       <div className="space-y-2 mb-4">
         <div>
           <strong>Token en localStorage:</strong> 
-          {localStorage.getItem('airbnb_auth_token') ? '✅ SÍ' : '❌ NO'}
+          {tokenInfo.hasToken ? '✅ SÍ' : '❌ NO'}
         </div>
-        <div>
-          <strong>Token:</strong> 
-          {localStorage.getItem('airbnb_auth_token')?.substring(0, 20)}...
-        </div>
+        {tokenInfo.tokenPreview && (
+          <div>
+            <strong>Token:</strong> 
+            {tokenInfo.tokenPreview}
+          </div>
+        )}
       </div>
 
       <div className="space-x-2 mb-4">
