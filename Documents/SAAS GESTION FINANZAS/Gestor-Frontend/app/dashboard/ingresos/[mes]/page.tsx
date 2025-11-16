@@ -66,17 +66,22 @@ export default function IngresosMesPage() {
     }
   }, [mes, searchParams])
 
-  // Función para cargar categorías
-  const loadCategorias = () => {
+  // Función para cargar categorías desde el backend
+  const loadCategorias = async () => {
     const usuarioActual = getUsuarioActual()
     if (usuarioActual) {
-      const categorias = getNombresCategoriasPorTipo('ingreso', usuarioActual.id)
-      setCategoriasDisponibles(categorias)
-      
-      // Si hay una categoría en la URL, preseleccionarla
-      const categoriaUrl = searchParams?.get('categoria')
-      if (categoriaUrl && categorias.includes(categoriaUrl)) {
-        setCategoria(categoriaUrl)
+      try {
+        const categorias = await getNombresCategoriasPorTipo('ingreso', usuarioActual.id)
+        setCategoriasDisponibles(categorias)
+        
+        // Si hay una categoría en la URL, preseleccionarla
+        const categoriaUrl = searchParams?.get('categoria')
+        if (categoriaUrl && categorias.includes(categoriaUrl)) {
+          setCategoria(categoriaUrl)
+        }
+      } catch (error) {
+        console.error('Error al cargar categorías:', error)
+        setCategoriasDisponibles([])
       }
     }
   }

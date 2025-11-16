@@ -7,8 +7,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getAuth, getUsuarioActual } from '@/lib/auth'
 import { getResumenMensual } from '@/lib/distribucion'
-import { getIngresos, getTotalIngresos } from '@/lib/ingresos'
+import { ingresosService } from '@/services/ingresos.service'
 import { getNombresCategoriasPorTipo } from '@/lib/categorias'
+import type { MesValido } from '@/models/presupuestos'
 import {
   getPresupuestos,
   setPresupuesto,
@@ -52,6 +53,9 @@ export default function DistribucionPage() {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([])
   const [totalIngresos, setTotalIngresos] = useState(0)
   const [resumen, setResumen] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [totalPresupuestos, setTotalPresupuestos] = useState(0)
   
   // Estados para el formulario
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('')
@@ -73,83 +77,136 @@ export default function DistribucionPage() {
     loadData()
   }, [mesSeleccionado])
 
-  // Actualizar porcentajes cuando cambian los ingresos
-  useEffect(() => {
-    if (totalIngresos > 0) {
-      actualizarPorcentajes(mesSeleccionado, totalIngresos)
-      loadPresupuestos()
-    }
-  }, [totalIngresos, mesSeleccionado])
-
   // Función para cargar datos
   const loadData = async () => {
     const usuarioActual = getUsuarioActual()
     if (usuarioActual) {
       try {
-        const ingresos = getTotalIngresos(mesSeleccionado, usuarioActual.id)
+        setLoading(true)
+        setError(null)
+        
+        // Obtener total de ingresos del mes desde el API real
+        const totalIngresosData = await ingresosService.getTotalByMes(mesSeleccionado as MesValido)
         const resumenData = await getResumenMensual(mesSeleccionado, usuarioActual.id)
         
-        setTotalIngresos(ingresos)
+        setTotalIngresos(totalIngresosData)
         setResumen(resumenData)
-        loadPresupuestos()
+        await loadPresupuestos()
       } catch (error) {
         console.error('Error al cargar datos:', error)
+        setError('Error al cargar los datos. Por favor, intenta de nuevo.')
+      } finally {
+        setLoading(false)
       }
     }
   }
 
   // Función para cargar presupuestos
-  const loadPresupuestos = () => {
+  const loadPresupuestos = async (forceRefresh: boolean = false) => {
     const usuarioActual = getUsuarioActual()
     if (usuarioActual) {
-      const presupuestosData = getPresupuestos(mesSeleccionado, usuarioActual.id)
-      setPresupuestos(presupuestosData)
+      try {
+        const [presupuestosData, total] = await Promise.all([
+          getPresupuestos(mesSeleccionado, usuarioActual.id, forceRefresh),
+          getTotalPresupuestos(mesSeleccionado, usuarioActual.id, forceRefresh)
+        ])
+        
+        console.log('[DISTRIBUCION] Presupuestos cargados:', {
+          cantidad: presupuestosData.length,
+          presupuestos: presupuestosData,
+          total: total
+        })
+        
+        setPresupuestos(presupuestosData)
+        setTotalPresupuestos(total)
+      } catch (error) {
+        console.error('Error al cargar presupuestos:', error)
+        setError('Error al cargar los presupuestos. Por favor, intenta de nuevo.')
+      }
     }
   }
 
   // Función para manejar el submit del formulario
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!categoriaSeleccionada) return
-    
-    let monto: number
-    
-    if (modoPorcentaje) {
-      // Calcular monto basado en porcentaje
-      const porcentaje = parseFloat(porcentajePresupuesto)
-      if (isNaN(porcentaje) || porcentaje < 0 || porcentaje > 100) {
-        alert('El porcentaje debe estar entre 0 y 100')
-        return
-      }
-      monto = (totalIngresos * porcentaje) / 100
-    } else {
-      // Usar monto directo
-      monto = parseFloat(montoPresupuesto)
-      if (isNaN(monto) || monto < 0) {
-        alert('El monto debe ser un número válido')
-        return
-      }
+    if (!categoriaSeleccionada) {
+      alert('Por favor, selecciona una categoría')
+      return
     }
     
-    setPresupuesto(mesSeleccionado, categoriaSeleccionada, monto, totalIngresos)
-    loadPresupuestos()
+    // Validar que haya ingresos registrados
+    if (totalIngresos <= 0) {
+      alert('No puedes crear presupuestos sin ingresos registrados. Por favor, registra ingresos primero para este mes.')
+      setError('No hay ingresos registrados para este mes. Registra ingresos primero.')
+      return
+    }
     
-    // Limpiar formulario
-    setCategoriaSeleccionada('')
-    setMontoPresupuesto('')
-    setPorcentajePresupuesto('')
-    setEditingCategoria(null)
+    try {
+      setLoading(true)
+      setError(null)
+      
+      let monto: number
+      
+      if (modoPorcentaje) {
+        // Calcular monto basado en porcentaje
+        const porcentaje = parseFloat(porcentajePresupuesto)
+        if (isNaN(porcentaje) || porcentaje < 0 || porcentaje > 100) {
+          alert('El porcentaje debe estar entre 0 y 100')
+          setLoading(false)
+          return
+        }
+        monto = (totalIngresos * porcentaje) / 100
+      } else {
+        // Usar monto directo
+        monto = parseFloat(montoPresupuesto)
+        if (isNaN(monto) || monto < 0) {
+          alert('El monto debe ser un número válido')
+          setLoading(false)
+          return
+        }
+      }
+      
+      await setPresupuesto(mesSeleccionado, categoriaSeleccionada, monto, totalIngresos)
+      
+      // Forzar recarga sin cache para ver los cambios inmediatamente
+      await loadPresupuestos(true)
+      
+      // Limpiar formulario
+      setCategoriaSeleccionada('')
+      setMontoPresupuesto('')
+      setPorcentajePresupuesto('')
+      setEditingCategoria(null)
+    } catch (error: any) {
+      console.error('Error al guardar presupuesto:', error)
+      setError(error.message || 'Error al guardar el presupuesto. Por favor, intenta de nuevo.')
+      alert(error.message || 'Error al guardar el presupuesto')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Función para eliminar presupuesto
-  const handleDelete = (categoria: string) => {
-    if (confirm(`¿Estás seguro de eliminar el presupuesto de ${categoria}?`)) {
+  const handleDelete = async (categoria: string) => {
+    if (!confirm(`¿Estás seguro de eliminar el presupuesto de ${categoria}?`)) {
+      return
+    }
+    
+    try {
+      setLoading(true)
+      setError(null)
       const usuarioActual = getUsuarioActual()
       if (usuarioActual) {
-        deletePresupuesto(mesSeleccionado, categoria, usuarioActual.id)
-        loadPresupuestos()
+        await deletePresupuesto(mesSeleccionado, categoria, usuarioActual.id)
+        // Forzar recarga sin cache para ver los cambios inmediatamente
+        await loadPresupuestos(true)
       }
+    } catch (error: any) {
+      console.error('Error al eliminar presupuesto:', error)
+      setError(error.message || 'Error al eliminar el presupuesto. Por favor, intenta de nuevo.')
+      alert(error.message || 'Error al eliminar el presupuesto')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -163,17 +220,23 @@ export default function DistribucionPage() {
   }
 
   // Preparar datos para la gráfica
-  const usuarioActual = getUsuarioActual()
-  const totalPresupuestos = usuarioActual ? getTotalPresupuestos(mesSeleccionado, usuarioActual.id) : 0
   const sobrante = totalIngresos - totalPresupuestos
   
   // Preparar datos para la gráfica (incluyendo sobrante como "Ahorro")
-  const chartData = presupuestos.map(p => ({
-    categoria: p.categoria,
-    monto: p.monto,
-    porcentaje: p.porcentaje,
-    color: ''
-  }))
+  // Usar porcentajes del backend si están disponibles, sino calcularlos
+  const chartData = presupuestos.map(p => {
+    // Si el porcentaje viene del backend, usarlo; sino calcularlo
+    const porcentaje = p.porcentaje > 0 
+      ? p.porcentaje 
+      : (totalIngresos > 0 ? (p.monto / totalIngresos) * 100 : 0)
+    
+    return {
+      categoria: p.categoria,
+      monto: p.monto,
+      porcentaje: porcentaje,
+      color: ''
+    }
+  })
   
   // Agregar sobrante como "Ahorro" si hay sobrante positivo
   if (sobrante > 0 && totalIngresos > 0) {
@@ -185,6 +248,15 @@ export default function DistribucionPage() {
       color: ''
     })
   }
+  
+  // Log para debug
+  console.log('[DISTRIBUCION] Datos para gráfica:', {
+    totalIngresos,
+    totalPresupuestos,
+    sobrante,
+    chartData,
+    presupuestosCount: presupuestos.length
+  })
 
   // Formatear monto como moneda
   const formatMonto = (monto: number) => {
@@ -200,13 +272,21 @@ export default function DistribucionPage() {
   // Estado para categorías disponibles
   const [categoriasDisponibles, setCategoriasDisponibles] = useState<string[]>([])
 
-  // Cargar categorías disponibles
+  // Cargar categorías disponibles desde el backend
   useEffect(() => {
-    const usuarioActual = getUsuarioActual()
-    if (usuarioActual) {
-      const categorias = getNombresCategoriasPorTipo('gasto', usuarioActual.id)
-      setCategoriasDisponibles(categorias)
+    const loadCategorias = async () => {
+      const usuarioActual = getUsuarioActual()
+      if (usuarioActual) {
+        try {
+          const categorias = await getNombresCategoriasPorTipo('gasto', usuarioActual.id)
+          setCategoriasDisponibles(categorias)
+        } catch (error) {
+          console.error('Error al cargar categorías:', error)
+          setCategoriasDisponibles([])
+        }
+      }
     }
+    loadCategorias()
   }, [presupuestos, editingCategoria, mesSeleccionado])
 
   // Filtrar categorías (las que no tienen presupuesto o la que se está editando)
@@ -223,6 +303,30 @@ export default function DistribucionPage() {
             Define y visualiza cómo quieres distribuir tus ingresos por categorías cada mes
           </p>
         </div>
+
+        {/* Mensaje de error */}
+        {error && (
+          <div className="error-message" style={{ 
+            padding: '1rem', 
+            margin: '1rem 0', 
+            backgroundColor: '#fee', 
+            color: '#c33', 
+            borderRadius: '4px' 
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* Indicador de carga */}
+        {loading && (
+          <div className="loading-message" style={{ 
+            padding: '1rem', 
+            margin: '1rem 0', 
+            textAlign: 'center' 
+          }}>
+            Cargando...
+          </div>
+        )}
 
         {/* Selector de mes */}
         <div className="distribucion-controls">
@@ -242,6 +346,26 @@ export default function DistribucionPage() {
             </select>
           </div>
         </div>
+
+        {/* Mensaje si no hay ingresos */}
+        {!loading && totalIngresos === 0 && (
+          <div className="warning-message" style={{ 
+            padding: '1.5rem', 
+            margin: '1rem 0', 
+            backgroundColor: '#fff3cd', 
+            color: '#856404', 
+            borderRadius: '4px',
+            border: '1px solid #ffc107'
+          }}>
+            <strong>⚠️ No hay ingresos registrados para {nombreMes}</strong>
+            <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+              Para crear presupuestos, primero necesitas registrar ingresos para este mes. 
+              <a href={`/dashboard/ingresos/${mesSeleccionado}`} style={{ marginLeft: '0.5rem', color: '#856404', textDecoration: 'underline' }}>
+                Ir a ingresos →
+              </a>
+            </p>
+          </div>
+        )}
 
         {/* Resumen */}
         {totalIngresos > 0 && (
@@ -283,6 +407,19 @@ export default function DistribucionPage() {
               {editingCategoria ? 'Editar Presupuesto' : 'Agregar Presupuesto'}
             </h2>
             <form onSubmit={handleSubmit} className="presupuesto-form">
+              {totalIngresos === 0 && (
+                <div className="form-warning" style={{ 
+                  padding: '1rem', 
+                  marginBottom: '1rem', 
+                  backgroundColor: '#fff3cd', 
+                  color: '#856404', 
+                  borderRadius: '4px',
+                  fontSize: '0.9rem'
+                }}>
+                  ⚠️ No puedes crear presupuestos sin ingresos registrados para este mes.
+                </div>
+              )}
+              
               <div className="form-group">
                 <label htmlFor="categoria" className="form-label">Categoría:</label>
                 <select
@@ -291,7 +428,7 @@ export default function DistribucionPage() {
                   value={categoriaSeleccionada}
                   onChange={(e) => setCategoriaSeleccionada(e.target.value)}
                   required
-                  disabled={!!editingCategoria}
+                  disabled={!!editingCategoria || totalIngresos === 0}
                 >
                   <option value="">Selecciona una categoría</option>
                   {categoriasFiltradas.map((cat) => (
@@ -339,6 +476,7 @@ export default function DistribucionPage() {
                     onChange={(e) => setMontoPresupuesto(e.target.value)}
                     required
                     placeholder="0.00"
+                    disabled={totalIngresos === 0}
                   />
                   {totalIngresos > 0 && montoPresupuesto && (
                     <span className="form-hint">
@@ -360,6 +498,7 @@ export default function DistribucionPage() {
                     onChange={(e) => setPorcentajePresupuesto(e.target.value)}
                     required
                     placeholder="0.0"
+                    disabled={totalIngresos === 0}
                   />
                   {totalIngresos > 0 && porcentajePresupuesto && (
                     <span className="form-hint">
@@ -370,7 +509,11 @@ export default function DistribucionPage() {
               )}
 
               <div className="form-actions">
-                <button type="submit" className="btn btn-primary btn-full">
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-full"
+                  disabled={totalIngresos === 0}
+                >
                   {editingCategoria ? 'Actualizar' : 'Agregar'} Presupuesto
                 </button>
                 {editingCategoria && (

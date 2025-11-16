@@ -38,7 +38,7 @@ function getNombreMesActual(): string {
 export default function CategoriasPage() {
   const router = useRouter()
   const [categorias, setCategorias] = useState<Categoria[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // Iniciar en true para mostrar loading inicial
   const [error, setError] = useState('')
   
   // Estados para el formulario
@@ -59,17 +59,26 @@ export default function CategoriasPage() {
     loadCategorias()
   }, [])
 
-  // Función para cargar categorías
-  const loadCategorias = () => {
+  // Función para cargar categorías desde el backend
+  const loadCategorias = async () => {
     const usuarioActual = getUsuarioActual()
     if (usuarioActual) {
-      const categoriasData = getCategorias(usuarioActual.id)
-      setCategorias(categoriasData)
+      try {
+        setLoading(true)
+        setError('')
+        const categoriasData = await getCategorias(usuarioActual.id)
+        setCategorias(categoriasData)
+      } catch (err: any) {
+        console.error('Error al cargar categorías:', err)
+        setError(err.message || 'Error al cargar las categorías')
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
   // Función para manejar el submit del formulario
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -77,13 +86,13 @@ export default function CategoriasPage() {
     try {
       if (editingId) {
         // Actualizar categoría existente
-        updateCategoria(editingId, { nombre: nombre.trim(), tipo })
+        await updateCategoria(editingId, { nombre: nombre.trim(), tipo })
       } else {
         // Crear nueva categoría
-        addCategoria({ nombre: nombre.trim(), tipo })
+        await addCategoria({ nombre: nombre.trim(), tipo })
       }
       
-      loadCategorias()
+      await loadCategorias()
       resetForm()
     } catch (err: any) {
       setError(err.message || 'Error al guardar la categoría')
@@ -109,18 +118,22 @@ export default function CategoriasPage() {
   }
 
   // Función para eliminar una categoría
-  const handleDelete = (id: string, nombre: string) => {
+  const handleDelete = async (id: string, nombre: string) => {
     if (confirm(`¿Estás seguro de eliminar la categoría "${nombre}"?`)) {
       const usuarioActual = getUsuarioActual()
       if (usuarioActual) {
         try {
-          deleteCategoria(id, usuarioActual.id)
-          loadCategorias()
+          setLoading(true)
+          setError('')
+          await deleteCategoria(id, usuarioActual.id)
+          await loadCategorias()
           if (editingId === id) {
             resetForm()
           }
         } catch (err: any) {
           setError(err.message || 'Error al eliminar la categoría')
+        } finally {
+          setLoading(false)
         }
       }
     }
@@ -129,6 +142,19 @@ export default function CategoriasPage() {
   // Agrupar categorías por tipo
   const categoriasGastos = categorias.filter(c => c.tipo === 'gasto' || c.tipo === 'ambos')
   const categoriasIngresos = categorias.filter(c => c.tipo === 'ingreso' || c.tipo === 'ambos')
+
+  if (loading && categorias.length === 0) {
+    return (
+      <div className="categorias-page">
+        <div className="categorias-container">
+          <div className="categorias-header">
+            <h1 className="categorias-title">Tus Categorías</h1>
+            <p className="categorias-subtitle">Cargando categorías...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="categorias-page">

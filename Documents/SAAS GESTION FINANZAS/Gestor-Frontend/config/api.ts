@@ -37,6 +37,13 @@ export const API_CONFIG = {
       GET_TOTAL: (mes: string) => `/api/ingresos/${mes}/total`, // Obtener total de ingresos por mes
       GET_BY_CATEGORIA: (mes: string, categoria: string) => `/api/ingresos/${mes}/categoria/${encodeURIComponent(categoria)}`, // Obtener ingresos por categoría
     },
+    CATEGORIAS: {
+      GET_ALL: '/api/categorias', // Obtener todas las categorías
+      GET_BY_TIPO: (tipo: string) => `/api/categorias/tipo/${tipo}`, // Obtener categorías por tipo (gastos, ingresos, ambos)
+      CREATE: '/api/categorias', // Crear categoría
+      UPDATE: (id: string) => `/api/categorias/${id}`, // Actualizar categoría
+      DELETE: (id: string) => `/api/categorias/${id}`, // Eliminar categoría
+    },
     AMIGOS: {
       GET_ALL: '/api/amigos', // Obtener todos los amigos (solo activos)
       GET_BY_ID: (id: string) => `/api/amigos/${id}`, // Obtener amigo por ID
@@ -87,6 +94,21 @@ export const API_CONFIG = {
       MARK_ALL_AS_LEIDAS: '/api/notificaciones/leer-todas', // Marcar todas las notificaciones como leídas
       DELETE: (id: string) => `/api/notificaciones/${id}`, // Eliminar notificación por ID
       DELETE_ALL: '/api/notificaciones', // Eliminar todas las notificaciones
+    },
+    PRESUPUESTOS: {
+      GET_BY_MES: (mes: string) => `/api/presupuestos/${mes}`, // Obtener presupuestos por mes
+      CREATE: '/api/presupuestos', // Crear o actualizar presupuesto (upsert)
+      UPDATE: (id: string) => `/api/presupuestos/${id}`, // Actualizar presupuesto por ID
+      DELETE: (mes: string, categoria: string) => `/api/presupuestos/${mes}/${encodeURIComponent(categoria)}`, // Eliminar presupuesto por mes y categoría
+      GET_TOTAL: (mes: string) => `/api/presupuestos/${mes}/total`, // Obtener total presupuestado del mes
+      GET_RESUMEN: (mes: string) => `/api/presupuestos/${mes}/resumen`, // Obtener resumen de presupuestos
+    },
+    DASHBOARD: {
+      RESUMEN: '/api/dashboard/resumen', // Obtener resumen del mes actual
+      GASTOS_RECIENTES: '/api/dashboard/gastos-recientes', // Obtener últimos 7 gastos del mes actual
+      GASTOS_CATEGORIA: '/api/dashboard/gastos-categoria', // Obtener top 3 categorías con más gastos
+      COMPARATIVA: '/api/dashboard/comparativa', // Comparativa mensual (mes actual vs mes anterior)
+      ALERTAS: '/api/dashboard/alertas', // Obtener alertas financieras
     }
   },
   

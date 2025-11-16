@@ -1,8 +1,11 @@
 // Utilidades para manejar presupuestos mensuales por categorías
-// Permite definir cuánto se quiere gastar en cada categoría por mes
+// Integración completa con backend MongoDB - NO USAR MOCK
+// Mantiene compatibilidad con la interfaz anterior para no romper componentes existentes
 
-import { getUsuarioActual } from './auth'
+import { presupuestosService } from '@/services/presupuestos.service'
+import type { MesValido } from '@/models/presupuestos'
 
+// Interfaz compatible con componentes existentes (formato simplificado)
 export interface Presupuesto {
   categoria: string
   monto: number
@@ -15,91 +18,184 @@ export interface PresupuestoMensual {
   presupuestos: Presupuesto[]
 }
 
-// Función para obtener la clave de localStorage para un mes
-function getStorageKey(mes: string, userId?: string): string {
-  let usuarioId = userId
-  if (!usuarioId && typeof window !== 'undefined') {
-    const usuario = getUsuarioActual()
-    usuarioId = usuario?.id
+// Cache simple para evitar múltiples llamadas
+let presupuestosCache: Map<string, Presupuesto[]> = new Map()
+let totalCache: Map<string, number> = new Map()
+
+// Función helper para validar mes
+function validateMes(mes: string): MesValido {
+  const mesesValidos: MesValido[] = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ]
+  if (mesesValidos.includes(mes as MesValido)) {
+    return mes as MesValido
   }
-  usuarioId = usuarioId || 'default'
-  return `presupuestos-${usuarioId}-${mes}`
+  throw new Error(`Mes inválido: ${mes}. Debe ser uno de: ${mesesValidos.join(', ')}`)
 }
 
-// Función para obtener presupuestos de un mes
-export function getPresupuestos(mes: string, userId?: string): Presupuesto[] {
+// Función para convertir presupuesto del backend al formato local
+function adaptPresupuesto(backendPresupuesto: any): Presupuesto {
+  return {
+    categoria: backendPresupuesto.categoria,
+    monto: backendPresupuesto.monto,
+    porcentaje: backendPresupuesto.porcentaje || 0
+  }
+}
+
+// Función para obtener presupuestos de un mes (async - ahora usa API real)
+export async function getPresupuestos(mes: string, userId?: string, forceRefresh: boolean = false): Promise<Presupuesto[]> {
   if (typeof window === 'undefined') return []
   
-  const key = getStorageKey(mes, userId)
-  const presupuestosJson = localStorage.getItem(key)
-  
-  if (!presupuestosJson) {
+  try {
+    const mesValido = validateMes(mes)
+    const cacheKey = `${mes}-${userId || 'default'}`
+    
+    // Si se fuerza la recarga, limpiar cache primero
+    if (forceRefresh) {
+      presupuestosCache.delete(cacheKey)
+      totalCache.delete(cacheKey)
+    }
+    
+    // Verificar cache solo si no se fuerza la recarga
+    if (!forceRefresh && presupuestosCache.has(cacheKey)) {
+      return presupuestosCache.get(cacheKey)!
+    }
+    
+    // Llamar al servicio real
+    const backendPresupuestos = await presupuestosService.getPresupuestosByMes(mesValido)
+    const presupuestos = backendPresupuestos.map(adaptPresupuesto)
+    
+    // Actualizar cache
+    presupuestosCache.set(cacheKey, presupuestos)
+    
+    return presupuestos
+  } catch (error) {
+    console.error('Error al obtener presupuestos:', error)
+    // En caso de error, retornar array vacío para no romper la UI
     return []
   }
-  
-  return JSON.parse(presupuestosJson)
 }
 
-// Función para guardar presupuestos de un mes
+// Función para guardar presupuestos de un mes (deprecated - usar setPresupuesto)
 export function savePresupuestos(mes: string, presupuestos: Presupuesto[], userId?: string): void {
+  console.warn('savePresupuestos está deprecated. Usar setPresupuesto con el servicio real.')
+}
+
+// Función para agregar o actualizar un presupuesto (async - ahora usa API real)
+export async function setPresupuesto(
+  mes: string, 
+  categoria: string, 
+  monto: number, 
+  totalIngresos: number, 
+  userId?: string
+): Promise<void> {
   if (typeof window === 'undefined') return
   
-  const key = getStorageKey(mes, userId)
-  localStorage.setItem(key, JSON.stringify(presupuestos))
-}
-
-// Función para agregar o actualizar un presupuesto
-export function setPresupuesto(mes: string, categoria: string, monto: number, totalIngresos: number, userId?: string): void {
-  const presupuestos = getPresupuestos(mes, userId)
-  const porcentaje = totalIngresos > 0 ? (monto / totalIngresos) * 100 : 0
-  
-  // Buscar si ya existe un presupuesto para esta categoría
-  const index = presupuestos.findIndex(p => p.categoria === categoria)
-  
-  const nuevoPresupuesto: Presupuesto = {
-    categoria,
-    monto,
-    porcentaje
+  try {
+    const mesValido = validateMes(mes)
+    
+    // Llamar al servicio real (upsert)
+    await presupuestosService.createOrUpdatePresupuesto({
+      mes: mesValido,
+      categoria,
+      monto,
+      totalIngresos
+    })
+    
+    // Limpiar cache para forzar recarga
+    const cacheKey = `${mes}-${userId || 'default'}`
+    presupuestosCache.delete(cacheKey)
+    totalCache.delete(cacheKey)
+  } catch (error) {
+    console.error('Error al crear/actualizar presupuesto:', error)
+    throw error
   }
+}
+
+// Función para eliminar un presupuesto (async - ahora usa API real)
+export async function deletePresupuesto(mes: string, categoria: string, userId?: string): Promise<void> {
+  if (typeof window === 'undefined') return
   
-  if (index >= 0) {
-    // Actualizar existente
-    presupuestos[index] = nuevoPresupuesto
-  } else {
-    // Agregar nuevo
-    presupuestos.push(nuevoPresupuesto)
+  try {
+    const mesValido = validateMes(mes)
+    
+    // Llamar al servicio real
+    await presupuestosService.deletePresupuesto(mesValido, categoria)
+    
+    // Limpiar cache
+    const cacheKey = `${mes}-${userId || 'default'}`
+    presupuestosCache.delete(cacheKey)
+    totalCache.delete(cacheKey)
+  } catch (error) {
+    console.error('Error al eliminar presupuesto:', error)
+    throw error
   }
+}
+
+// Función para obtener el total de presupuestos de un mes (async - ahora usa API real)
+export async function getTotalPresupuestos(mes: string, userId?: string, forceRefresh: boolean = false): Promise<number> {
+  if (typeof window === 'undefined') return 0
   
-  savePresupuestos(mes, presupuestos, userId)
-}
-
-// Función para eliminar un presupuesto
-export function deletePresupuesto(mes: string, categoria: string, userId?: string): void {
-  const presupuestos = getPresupuestos(mes, userId)
-  const presupuestosFiltrados = presupuestos.filter(p => p.categoria !== categoria)
-  savePresupuestos(mes, presupuestosFiltrados, userId)
-}
-
-// Función para obtener el total de presupuestos de un mes
-export function getTotalPresupuestos(mes: string, userId?: string): number {
-  const presupuestos = getPresupuestos(mes, userId)
-  return presupuestos.reduce((total, p) => total + p.monto, 0)
+  try {
+    const mesValido = validateMes(mes)
+    const cacheKey = `${mes}-${userId || 'default'}`
+    
+    // Si se fuerza la recarga, limpiar cache primero
+    if (forceRefresh) {
+      totalCache.delete(cacheKey)
+    }
+    
+    // Verificar cache solo si no se fuerza la recarga
+    if (!forceRefresh && totalCache.has(cacheKey)) {
+      return totalCache.get(cacheKey)!
+    }
+    
+    // Llamar al servicio real
+    const total = await presupuestosService.getTotalByMes(mesValido)
+    
+    // Actualizar cache
+    totalCache.set(cacheKey, total)
+    
+    return total
+  } catch (error) {
+    console.error('Error al obtener total de presupuestos:', error)
+    // En caso de error, calcular desde presupuestos locales si están en cache
+    const cacheKey = `${mes}-${userId || 'default'}`
+    const presupuestos = presupuestosCache.get(cacheKey) || []
+    return presupuestos.reduce((total, p) => total + p.monto, 0)
+  }
 }
 
 // Función para actualizar porcentajes basándose en el total de ingresos
+// Nota: El backend calcula porcentajes automáticamente, esta función es solo para compatibilidad
 export function actualizarPorcentajes(mes: string, totalIngresos: number, userId?: string): void {
-  const presupuestos = getPresupuestos(mes, userId)
-  const presupuestosActualizados = presupuestos.map(p => ({
-    ...p,
-    porcentaje: totalIngresos > 0 ? (p.monto / totalIngresos) * 100 : 0
-  }))
-  savePresupuestos(mes, presupuestosActualizados, userId)
+  // El backend ya calcula porcentajes automáticamente
+  // Esta función se mantiene para compatibilidad pero no hace nada
+  // Los porcentajes se actualizan automáticamente cuando se recargan los presupuestos
+  console.log('actualizarPorcentajes: Los porcentajes se calculan automáticamente en el backend')
 }
 
-// Función para obtener el presupuesto de una categoría específica
-export function getPresupuestoPorCategoria(mes: string, categoria: string, userId?: string): Presupuesto | null {
-  const presupuestos = getPresupuestos(mes, userId)
+// Función para obtener el presupuesto de una categoría específica (async)
+export async function getPresupuestoPorCategoria(
+  mes: string, 
+  categoria: string, 
+  userId?: string
+): Promise<Presupuesto | null> {
+  const presupuestos = await getPresupuestos(mes, userId)
   const presupuesto = presupuestos.find(p => p.categoria === categoria)
   return presupuesto || null
+}
+
+// Función para limpiar cache (útil para forzar recarga)
+export function clearPresupuestosCache(mes?: string, userId?: string): void {
+  if (mes) {
+    const cacheKey = `${mes}-${userId || 'default'}`
+    presupuestosCache.delete(cacheKey)
+    totalCache.delete(cacheKey)
+  } else {
+    presupuestosCache.clear()
+    totalCache.clear()
+  }
 }
 

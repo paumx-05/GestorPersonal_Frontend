@@ -10,7 +10,7 @@ import { useParams } from 'next/navigation'
 import { getAuth, getUsuarioActual } from '@/lib/auth'
 import { getGastos, addGasto, deleteGasto, getTotalGastos, updateGasto, type Gasto } from '@/lib/gastos'
 import { getNombresCategoriasPorTipo } from '@/lib/categorias'
-import { getPresupuestoPorCategoria } from '@/lib/presupuestos'
+import { getPresupuestos } from '@/lib/presupuestos'
 import { getAmigos } from '@/lib/amigos'
 
 // Mapeo de valores de mes a nombres completos
@@ -58,6 +58,9 @@ export default function GastosMesPage() {
   
   // Estado para edición de gasto
   const [gastoEditando, setGastoEditando] = useState<string | null>(null)
+  
+  // Estado para presupuestos (para calcular saldo disponible)
+  const [presupuestos, setPresupuestos] = useState<Array<{ categoria: string; monto: number }>>([])
 
   // Verificar autenticación al cargar
   useEffect(() => {
@@ -70,11 +73,31 @@ export default function GastosMesPage() {
   // Estado para categorías disponibles
   const [categoriasDisponibles, setCategoriasDisponibles] = useState<string[]>([])
 
+  // Función para cargar presupuestos del mes
+  const loadPresupuestos = async () => {
+    const usuarioActual = getUsuarioActual()
+    if (usuarioActual && mes) {
+      try {
+        const presupuestosData = await getPresupuestos(mes, usuarioActual.id)
+        // Convertir a formato simple para búsqueda rápida
+        const presupuestosMap = presupuestosData.map(p => ({
+          categoria: p.categoria,
+          monto: p.monto
+        }))
+        setPresupuestos(presupuestosMap)
+      } catch (error) {
+        console.error('Error al cargar presupuestos:', error)
+        setPresupuestos([])
+      }
+    }
+  }
+
   // Cargar gastos y categorías al montar el componente o cambiar el mes
   useEffect(() => {
     if (mes) {
       loadGastos()
       loadCategorias()
+      loadPresupuestos()
       // loadAmigos es async, se ejecuta en paralelo
       loadAmigos().catch(err => console.error('Error al cargar amigos:', err))
     }
@@ -107,17 +130,22 @@ export default function GastosMesPage() {
   // cuando se crea/actualiza un gasto con división y pagado === false
   // No es necesario crear mensajes manualmente desde el frontend
 
-  // Función para cargar categorías
-  const loadCategorias = () => {
+  // Función para cargar categorías desde el backend
+  const loadCategorias = async () => {
     const usuarioActual = getUsuarioActual()
     if (usuarioActual) {
-      const categorias = getNombresCategoriasPorTipo('gasto', usuarioActual.id)
-      setCategoriasDisponibles(categorias)
-      
-      // Si hay una categoría en la URL, preseleccionarla
-      const categoriaUrl = searchParams?.get('categoria')
-      if (categoriaUrl && categorias.includes(categoriaUrl)) {
-        setCategoria(categoriaUrl)
+      try {
+        const categorias = await getNombresCategoriasPorTipo('gasto', usuarioActual.id)
+        setCategoriasDisponibles(categorias)
+        
+        // Si hay una categoría en la URL, preseleccionarla
+        const categoriaUrl = searchParams?.get('categoria')
+        if (categoriaUrl && categorias.includes(categoriaUrl)) {
+          setCategoria(categoriaUrl)
+        }
+      } catch (error) {
+        console.error('Error al cargar categorías:', error)
+        setCategoriasDisponibles([])
       }
     }
   }
@@ -311,8 +339,11 @@ export default function GastosMesPage() {
         // Esperar un momento para que el backend procese
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        // Recargar gastos
-        await loadGastos()
+        // Recargar gastos y presupuestos
+        await Promise.all([
+          loadGastos(),
+          loadPresupuestos()
+        ])
       } catch (error: any) {
         console.error(`Error al ${gastoEditando ? 'actualizar' : 'crear'} gasto:`, error)
         alert(error.message || `Error al ${gastoEditando ? 'actualizar' : 'crear'} el gasto. Por favor, intenta nuevamente.`)
@@ -396,7 +427,11 @@ export default function GastosMesPage() {
       if (usuarioActual) {
         try {
           await deleteGasto(mes, id, usuarioActual.id)
-          await loadGastos()
+          // Recargar gastos y presupuestos
+          await Promise.all([
+            loadGastos(),
+            loadPresupuestos()
+          ])
         } catch (error: any) {
           console.error('Error al eliminar gasto:', error)
           alert(error.message || 'Error al eliminar el gasto. Por favor, intenta nuevamente.')
@@ -430,10 +465,8 @@ export default function GastosMesPage() {
   const getSaldoDisponibleHasta = (gastoActual: Gasto, index: number) => {
     if (!gastoActual.categoria) return null
     
-    const usuarioActual = getUsuarioActual()
-    if (!usuarioActual) return null
-    
-    const presupuesto = getPresupuestoPorCategoria(mes, gastoActual.categoria, usuarioActual.id)
+    // Buscar presupuesto en el estado local (ya cargado)
+    const presupuesto = presupuestos.find(p => p.categoria === gastoActual.categoria)
     if (!presupuesto) return null
     
     // Obtener todos los gastos de esta categoría ordenados por fecha ascendente (más antiguos primero)

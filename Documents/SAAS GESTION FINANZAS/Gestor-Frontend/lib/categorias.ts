@@ -1,8 +1,11 @@
 // Utilidades para manejar categorías personalizadas
+// Integración con backend MongoDB - NO USAR MOCK
 // Permite crear, editar y eliminar categorías propias
 
-import { getUsuarioActual } from './auth'
+import { categoriasService } from '@/services/categorias.service'
+import type { Categoria as BackendCategoria, TipoCategoria as BackendTipoCategoria } from '@/models/categorias'
 
+// Interfaz local para compatibilidad con código existente
 export interface Categoria {
   id: string
   nombre: string
@@ -11,7 +14,7 @@ export interface Categoria {
   fechaCreacion: string
 }
 
-// Categorías por defecto para gastos
+// Categorías por defecto para referencia (ya no se usan para inicializar)
 export const categoriasGastosDefault = [
   'Alimentación',
   'Transporte',
@@ -25,7 +28,6 @@ export const categoriasGastosDefault = [
   'Otros'
 ]
 
-// Categorías por defecto para ingresos
 export const categoriasIngresosDefault = [
   'Salario',
   'Freelance',
@@ -36,124 +38,156 @@ export const categoriasIngresosDefault = [
   'Otros'
 ]
 
-// Función para obtener la clave de localStorage
-function getStorageKey(userId?: string): string {
-  let usuarioId = userId
-  if (!usuarioId && typeof window !== 'undefined') {
-    const usuario = getUsuarioActual()
-    usuarioId = usuario?.id
-  }
-  usuarioId = usuarioId || 'default'
-  return `categorias-personalizadas-${usuarioId}`
+/**
+ * Convierte tipo de categoría del backend (plural) al formato local (singular)
+ */
+function adaptTipoFromBackend(tipo: BackendTipoCategoria): 'gasto' | 'ingreso' | 'ambos' {
+  if (tipo === 'gastos') return 'gasto'
+  if (tipo === 'ingresos') return 'ingreso'
+  return 'ambos'
 }
 
-// Función para obtener todas las categorías personalizadas
-export function getCategorias(userId?: string): Categoria[] {
-  if (typeof window === 'undefined') return []
-  
-  const key = getStorageKey(userId)
-  const categoriasJson = localStorage.getItem(key)
-  
-  if (!categoriasJson) {
-    // Inicializar con categorías por defecto como personalizadas
-    const categoriasIniciales: Categoria[] = [
-      ...categoriasGastosDefault.map((nombre, index) => ({
-        id: `gasto-${index}`,
-        nombre,
-        tipo: 'gasto' as const,
-        fechaCreacion: new Date().toISOString()
-      })),
-      ...categoriasIngresosDefault.map((nombre, index) => ({
-        id: `ingreso-${index}`,
-        nombre,
-        tipo: 'ingreso' as const,
-        fechaCreacion: new Date().toISOString()
-      }))
-    ]
-    saveCategorias(categoriasIniciales, userId)
-    return categoriasIniciales
-  }
-  
-  return JSON.parse(categoriasJson)
+/**
+ * Convierte tipo de categoría del formato local (singular) al backend (plural)
+ */
+function adaptTipoToBackend(tipo: 'gasto' | 'ingreso' | 'ambos'): BackendTipoCategoria {
+  if (tipo === 'gasto') return 'gastos'
+  if (tipo === 'ingreso') return 'ingresos'
+  return 'ambos'
 }
 
-// Función para guardar categorías
-export function saveCategorias(categorias: Categoria[], userId?: string): void {
-  if (typeof window === 'undefined') return
-  
-  const key = getStorageKey(userId)
-  localStorage.setItem(key, JSON.stringify(categorias))
+/**
+ * Adapta una categoría del backend al formato local
+ */
+function adaptCategoriaFromBackend(backendCategoria: BackendCategoria): Categoria {
+  return {
+    id: backendCategoria._id,
+    nombre: backendCategoria.nombre,
+    tipo: adaptTipoFromBackend(backendCategoria.tipo),
+    fechaCreacion: backendCategoria.createdAt,
+  }
 }
 
-// Función para agregar una nueva categoría
-export function addCategoria(categoria: Omit<Categoria, 'id' | 'fechaCreacion'>, userId?: string): void {
-  const categorias = getCategorias(userId)
-  
-  // Verificar que no exista una categoría con el mismo nombre y tipo
-  const existe = categorias.some(
-    c => c.nombre.toLowerCase() === categoria.nombre.toLowerCase() && c.tipo === categoria.tipo
-  )
-  
-  if (existe) {
-    throw new Error('Ya existe una categoría con ese nombre y tipo')
+/**
+ * Obtiene todas las categorías del usuario autenticado desde el backend
+ */
+export async function getCategorias(userId?: string): Promise<Categoria[]> {
+  try {
+    const backendCategorias = await categoriasService.getAllCategorias()
+    return backendCategorias.map(adaptCategoriaFromBackend)
+  } catch (error: any) {
+    console.error('[CATEGORIAS] Error al obtener categorías:', error)
+    // Retornar array vacío en caso de error para no romper la UI
+    return []
   }
-  
-  const nuevaCategoria: Categoria = {
-    ...categoria,
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    fechaCreacion: new Date().toISOString()
-  }
-  
-  categorias.push(nuevaCategoria)
-  saveCategorias(categorias, userId)
 }
 
-// Función para actualizar una categoría
-export function updateCategoria(id: string, categoria: Partial<Categoria>, userId?: string): void {
-  const categorias = getCategorias(userId)
-  const index = categorias.findIndex(c => c.id === id)
-  
-  if (index === -1) {
-    throw new Error('Categoría no encontrada')
-  }
-  
-  // Verificar que no exista otra categoría con el mismo nombre y tipo
-  if (categoria.nombre) {
-    const existe = categorias.some(
-      (c, i) => i !== index && 
-      c.nombre.toLowerCase() === categoria.nombre!.toLowerCase() && 
-      (categoria.tipo ? c.tipo === categoria.tipo : c.tipo === categorias[index].tipo)
-    )
+/**
+ * Obtiene categorías filtradas por tipo desde el backend
+ */
+export async function getCategoriasPorTipo(
+  tipo: 'gasto' | 'ingreso' | 'ambos',
+  userId?: string
+): Promise<Categoria[]> {
+  try {
+    const backendTipo = adaptTipoToBackend(tipo)
+    const backendCategorias = await categoriasService.getCategoriasByTipo(backendTipo)
     
-    if (existe) {
-      throw new Error('Ya existe una categoría con ese nombre y tipo')
+    // Si el tipo es 'ambos', también incluir categorías de tipo 'ambos' del backend
+    // El backend ya filtra correctamente, pero para asegurar compatibilidad:
+    const categorias = backendCategorias.map(adaptCategoriaFromBackend)
+    
+    // Si el tipo local es 'ambos', incluir todas
+    if (tipo === 'ambos') {
+      return categorias
     }
+    
+    // Filtrar para incluir solo las del tipo solicitado o 'ambos'
+    return categorias.filter(c => c.tipo === tipo || c.tipo === 'ambos')
+  } catch (error: any) {
+    console.error('[CATEGORIAS] Error al obtener categorías por tipo:', error)
+    return []
   }
-  
-  categorias[index] = { ...categorias[index], ...categoria }
-  saveCategorias(categorias, userId)
 }
 
-// Función para eliminar una categoría
-export function deleteCategoria(id: string, userId?: string): void {
-  const categorias = getCategorias(userId)
-  const categoriasFiltradas = categorias.filter(c => c.id !== id)
-  saveCategorias(categoriasFiltradas, userId)
+/**
+ * Obtiene solo los nombres de categorías por tipo (para compatibilidad con código existente)
+ */
+export async function getNombresCategoriasPorTipo(
+  tipo: 'gasto' | 'ingreso',
+  userId?: string
+): Promise<string[]> {
+  const categorias = await getCategoriasPorTipo(tipo, userId)
+  return categorias.map(c => c.nombre)
 }
 
-// Función para obtener categorías por tipo
-export function getCategoriasPorTipo(tipo: 'gasto' | 'ingreso' | 'ambos', userId?: string): Categoria[] {
-  const categorias = getCategorias(userId)
-  
-  if (tipo === 'ambos') {
-    return categorias.filter(c => c.tipo === 'ambos' || c.tipo === 'gasto' || c.tipo === 'ingreso')
+/**
+ * Crea una nueva categoría en el backend
+ */
+export async function addCategoria(
+  categoria: Omit<Categoria, 'id' | 'fechaCreacion'>,
+  userId?: string
+): Promise<Categoria> {
+  try {
+    const backendCategoria = await categoriasService.createCategoria({
+      nombre: categoria.nombre.trim(),
+      tipo: adaptTipoToBackend(categoria.tipo),
+    })
+    
+    return adaptCategoriaFromBackend(backendCategoria)
+  } catch (error: any) {
+    console.error('[CATEGORIAS] Error al crear categoría:', error)
+    throw new Error(error.message || 'Error al crear la categoría')
   }
-  
-  return categorias.filter(c => c.tipo === tipo || c.tipo === 'ambos')
 }
 
-// Función para obtener solo los nombres de categorías por tipo (para compatibilidad)
-export function getNombresCategoriasPorTipo(tipo: 'gasto' | 'ingreso', userId?: string): string[] {
-  return getCategoriasPorTipo(tipo, userId).map(c => c.nombre)
+/**
+ * Actualiza una categoría existente en el backend
+ */
+export async function updateCategoria(
+  id: string,
+  categoria: Partial<Categoria>,
+  userId?: string
+): Promise<Categoria> {
+  try {
+    const updateData: any = {}
+    
+    if (categoria.nombre !== undefined) {
+      updateData.nombre = categoria.nombre.trim()
+    }
+    
+    if (categoria.tipo !== undefined) {
+      updateData.tipo = adaptTipoToBackend(categoria.tipo)
+    }
+    
+    const backendCategoria = await categoriasService.updateCategoria(id, updateData)
+    return adaptCategoriaFromBackend(backendCategoria)
+  } catch (error: any) {
+    console.error('[CATEGORIAS] Error al actualizar categoría:', error)
+    throw new Error(error.message || 'Error al actualizar la categoría')
+  }
 }
 
+/**
+ * Elimina una categoría del backend
+ */
+export async function deleteCategoria(id: string, userId?: string): Promise<void> {
+  try {
+    await categoriasService.deleteCategoria(id)
+  } catch (error: any) {
+    console.error('[CATEGORIAS] Error al eliminar categoría:', error)
+    throw new Error(error.message || 'Error al eliminar la categoría')
+  }
+}
+
+// Funciones deprecadas - mantenidas solo para compatibilidad pero ya no usan localStorage
+// Estas funciones ahora son wrappers async que llaman a las funciones del backend
+
+/**
+ * @deprecated Esta función ya no guarda en localStorage, usa el backend
+ * Mantenida solo para compatibilidad
+ */
+export function saveCategorias(categorias: Categoria[], userId?: string): void {
+  console.warn('[CATEGORIAS] saveCategorias está deprecada. Las categorías se guardan automáticamente en el backend.')
+  // No hacer nada - las categorías se guardan en el backend
+}
