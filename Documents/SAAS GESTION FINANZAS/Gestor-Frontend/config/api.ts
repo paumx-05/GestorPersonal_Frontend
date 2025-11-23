@@ -164,6 +164,12 @@ export const API_CONFIG = {
         const query = deleteData ? '?deleteData=true' : '?deleteData=false'
         return `/api/carteras/${id}${query}` // Eliminar cartera (opcionalmente eliminar datos asociados)
       },
+      DEPOSITAR: (id: string) => `/api/carteras/${id}/depositar`, // Depositar en cartera
+      RETIRAR: (id: string) => `/api/carteras/${id}/retirar`, // Retirar de cartera
+      TRANSFERIR: '/api/carteras/transferir', // Transferir entre carteras
+      GET_TRANSACCIONES: (id: string) => `/api/carteras/${id}/transacciones`, // Obtener transacciones de una cartera
+      GET_SALDO: (id: string) => `/api/carteras/${id}/saldo`, // Obtener saldo actualizado de una cartera
+      SINCRONIZAR: (id: string) => `/api/carteras/${id}/sincronizar`, // Sincronizar saldo con gastos/ingresos
     },
     ESTADISTICAS: {
       RESUMEN: '/api/estadisticas/resumen', // Obtener resumen de estadísticas por periodo

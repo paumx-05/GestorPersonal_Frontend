@@ -239,6 +239,16 @@ export default function Sidebar() {
           {!isCollapsed && <span className="sidebar-text">Tus Categorías</span>}
         </Link>
 
+        {/* Opción de Gestión de Carteras */}
+        <Link 
+          href="/dashboard/carteras" 
+          className={`sidebar-item ${pathname?.startsWith('/dashboard/carteras') ? 'active' : ''}`}
+          title="Gestión de Carteras"
+        >
+          <span className="sidebar-icon">💼</span>
+          {!isCollapsed && <span className="sidebar-text">Gestión de Carteras</span>}
+        </Link>
+
         {/* Espacio para futuras opciones del menú */}
       </nav>
     </aside>

@@ -9,16 +9,31 @@ import type {
   BackendCarterasResponse,
   BackendCarteraResponse,
   BackendDeleteCarteraResponse,
+  BackendOperacionSaldoResponse,
+  BackendTransferenciaResponse,
+  BackendTransaccionesResponse,
+  BackendSaldoResponse,
   BackendError,
   CarteraError,
-  Cartera
+  Cartera,
+  TransaccionCartera,
+  DepositarCarteraRequest,
+  RetirarCarteraRequest,
+  TransferirCarteraRequest
 } from '@/models/carteras'
 import { 
   CarterasResponseSchema,
   CarteraResponseSchema,
   DeleteCarteraResponseSchema,
   CreateCarteraRequestSchema,
-  UpdateCarteraRequestSchema
+  UpdateCarteraRequestSchema,
+  DepositarCarteraRequestSchema,
+  RetirarCarteraRequestSchema,
+  TransferirCarteraRequestSchema,
+  OperacionSaldoResponseSchema,
+  TransferenciaResponseSchema,
+  TransaccionesResponseSchema,
+  SaldoResponseSchema
 } from '@/schemas/carteras.schema'
 import { BackendErrorSchema } from '@/schemas/auth.schema'
 import { getToken, clearTokens, decodeToken } from '@/utils/jwt'
@@ -282,6 +297,134 @@ export const carterasService = {
       },
       DeleteCarteraResponseSchema
     )
+  },
+
+  /**
+   * Deposita dinero en una cartera
+   * @param id - ID de la cartera
+   * @param data - Datos del depósito (monto, concepto, fecha)
+   */
+  async depositar(id: string, data: DepositarCarteraRequest): Promise<{ cartera: Cartera; transaccion: TransaccionCartera }> {
+    // Validar request
+    const validated = DepositarCarteraRequestSchema.safeParse(data)
+    if (!validated.success) {
+      throw {
+        message: validated.error.issues[0].message,
+        status: 400,
+      } as CarteraError
+    }
+
+    const response = await fetchAPI<BackendOperacionSaldoResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.DEPOSITAR(id),
+      {
+        method: 'POST',
+        body: JSON.stringify(validated.data),
+      },
+      OperacionSaldoResponseSchema
+    )
+
+    return response.data
+  },
+
+  /**
+   * Retira dinero de una cartera
+   * @param id - ID de la cartera
+   * @param data - Datos del retiro (monto, concepto, fecha)
+   */
+  async retirar(id: string, data: RetirarCarteraRequest): Promise<{ cartera: Cartera; transaccion: TransaccionCartera }> {
+    // Validar request
+    const validated = RetirarCarteraRequestSchema.safeParse(data)
+    if (!validated.success) {
+      throw {
+        message: validated.error.issues[0].message,
+        status: 400,
+      } as CarteraError
+    }
+
+    const response = await fetchAPI<BackendOperacionSaldoResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.RETIRAR(id),
+      {
+        method: 'POST',
+        body: JSON.stringify(validated.data),
+      },
+      OperacionSaldoResponseSchema
+    )
+
+    return response.data
+  },
+
+  /**
+   * Transfiere dinero entre carteras
+   * @param data - Datos de la transferencia (origen, destino, monto, concepto, fecha)
+   */
+  async transferir(data: TransferirCarteraRequest): Promise<{ carteraOrigen: Cartera; carteraDestino: Cartera; transaccion: TransaccionCartera }> {
+    // Validar request
+    const validated = TransferirCarteraRequestSchema.safeParse(data)
+    if (!validated.success) {
+      throw {
+        message: validated.error.issues[0].message,
+        status: 400,
+      } as CarteraError
+    }
+
+    const response = await fetchAPI<BackendTransferenciaResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.TRANSFERIR,
+      {
+        method: 'POST',
+        body: JSON.stringify(validated.data),
+      },
+      TransferenciaResponseSchema
+    )
+
+    return response.data
+  },
+
+  /**
+   * Obtiene el historial de transacciones de una cartera
+   * @param id - ID de la cartera
+   */
+  async getTransacciones(id: string): Promise<TransaccionCartera[]> {
+    const response = await fetchAPI<BackendTransaccionesResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.GET_TRANSACCIONES(id),
+      {
+        method: 'GET',
+      },
+      TransaccionesResponseSchema
+    )
+
+    return response.data || []
+  },
+
+  /**
+   * Obtiene el saldo actualizado de una cartera
+   * @param id - ID de la cartera
+   */
+  async getSaldo(id: string): Promise<{ saldo: number; saldoContable: number; diferencia: number; ultimaActualizacion: string }> {
+    const response = await fetchAPI<BackendSaldoResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.GET_SALDO(id),
+      {
+        method: 'GET',
+      },
+      SaldoResponseSchema
+    )
+
+    return response.data
+  },
+
+  /**
+   * Sincroniza el saldo de una cartera con los gastos e ingresos registrados
+   * @param id - ID de la cartera
+   */
+  async sincronizar(id: string): Promise<Cartera> {
+    const response = await fetchAPI<BackendCarteraResponse>(
+      API_CONFIG.ENDPOINTS.CARTERAS.SINCRONIZAR(id),
+      {
+        method: 'POST',
+      },
+      CarteraResponseSchema
+    )
+
+    return response.data
   },
 }
 
