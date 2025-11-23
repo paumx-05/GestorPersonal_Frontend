@@ -7,6 +7,7 @@ export interface IIngreso extends Document {
   fecha: Date;
   categoria: string;
   mes: string;
+  carteraId?: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
@@ -41,6 +42,12 @@ const IngresoSchema: Schema = new Schema(
       required: [true, 'El mes es requerido'],
       enum: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
     },
+    carteraId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Cartera',
+      required: false,
+      index: true
+    },
     createdAt: {
       type: Date,
       default: Date.now
@@ -56,6 +63,8 @@ const IngresoSchema: Schema = new Schema(
 IngresoSchema.index({ userId: 1, mes: 1 });
 IngresoSchema.index({ userId: 1, categoria: 1 });
 IngresoSchema.index({ userId: 1, fecha: -1 });
+IngresoSchema.index({ userId: 1, carteraId: 1 }); // Para búsquedas por usuario y cartera
+IngresoSchema.index({ userId: 1, mes: 1, carteraId: 1 }); // Para consultas por mes y cartera
 
 export const Ingreso = mongoose.model<IIngreso>('Ingreso', IngresoSchema);
 

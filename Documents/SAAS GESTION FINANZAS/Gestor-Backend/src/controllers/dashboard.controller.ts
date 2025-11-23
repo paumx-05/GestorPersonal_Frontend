@@ -1,11 +1,10 @@
 import { Response } from 'express';
+import mongoose from 'mongoose';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { Gasto } from '../models/Gasto.model';
 import { Ingreso } from '../models/Ingreso.model';
 import { Presupuesto } from '../models/Presupuesto.model';
-
-const mesesValidos = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+import { Cartera } from '../models/Cartera.model';
 
 // Helper: Obtener mes actual en formato español
 const getMesActual = (): string => {
@@ -31,6 +30,46 @@ const calcularPorcentajeCambio = (actual: number, anterior: number): number => {
   return ((actual - anterior) / anterior) * 100;
 };
 
+// Helper: Construir filtro por cartera
+const construirFiltroCartera = async (
+  userId: string | mongoose.Types.ObjectId,
+  mes: string,
+  carteraId?: string
+): Promise<{ userId: mongoose.Types.ObjectId; mes: string; carteraId?: mongoose.Types.ObjectId | null }> => {
+  const userIdObj = typeof userId === 'string' 
+    ? new mongoose.Types.ObjectId(userId) 
+    : userId;
+
+  const filtro: any = {
+    userId: userIdObj,
+    mes
+  };
+
+  if (carteraId) {
+    // Validar que la cartera pertenece al usuario
+    if (!mongoose.Types.ObjectId.isValid(carteraId)) {
+      throw new Error('ID de cartera inválido');
+    }
+
+    const cartera = await Cartera.findOne({
+      _id: carteraId,
+      userId: userIdObj
+    });
+
+    if (!cartera) {
+      throw new Error('Cartera no encontrada o no pertenece al usuario');
+    }
+
+    // Filtrar por cartera específica
+    filtro.carteraId = new mongoose.Types.ObjectId(carteraId);
+  } else {
+    // Filtrar por datos sin cartera (carteraId = null)
+    filtro.carteraId = null;
+  }
+
+  return filtro;
+};
+
 // Obtener resumen del mes actual
 export const getResumenMesActual = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -44,16 +83,25 @@ export const getResumenMesActual = async (req: AuthRequest, res: Response): Prom
 
     const userId = req.user.userId;
     const mesActual = getMesActual();
+    const carteraId = req.query.carteraId as string | undefined;
 
-    // Obtener ingresos y gastos del mes actual en paralelo
-    const [ingresos, gastos] = await Promise.all([
-      Ingreso.find({ userId, mes: mesActual }).lean(),
-      Gasto.find({ userId, mes: mesActual }).lean()
+    // Construir filtro con validación de cartera
+    const filtro = await construirFiltroCartera(userId, mesActual, carteraId);
+
+    // Calcular ingresos (solo de la cartera especificada o sin cartera)
+    const ingresosResult = await Ingreso.aggregate([
+      { $match: filtro },
+      { $group: { _id: null, total: { $sum: '$monto' } } }
     ]);
 
-    // Calcular totales
-    const totalIngresos = ingresos.reduce((sum, ing) => sum + ing.monto, 0);
-    const totalGastos = gastos.reduce((sum, gasto) => sum + gasto.monto, 0);
+    // Calcular gastos (solo de la cartera especificada o sin cartera)
+    const gastosResult = await Gasto.aggregate([
+      { $match: filtro },
+      { $group: { _id: null, total: { $sum: '$monto' } } }
+    ]);
+
+    const totalIngresos = ingresosResult[0]?.total || 0;
+    const totalGastos = gastosResult[0]?.total || 0;
     const balance = totalIngresos - totalGastos;
     const porcentajeGastado = totalIngresos > 0 
       ? (totalGastos / totalIngresos) * 100 
@@ -69,7 +117,17 @@ export const getResumenMesActual = async (req: AuthRequest, res: Response): Prom
         porcentajeGastado: Number(porcentajeGastado.toFixed(2))
       }
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Cartera no encontrada o no pertenece al usuario' || 
+        error.message === 'ID de cartera inválido') {
+      res.status(404).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
+    console.error('Error en getResumenMesActual:', error);
     res.status(500).json({
       success: false,
       error: 'Error al obtener resumen del mes actual'
@@ -90,10 +148,14 @@ export const getGastosRecientes = async (req: AuthRequest, res: Response): Promi
 
     const userId = req.user.userId;
     const mesActual = getMesActual();
+    const carteraId = req.query.carteraId as string | undefined;
 
-    // Obtener últimos 7 gastos del mes actual, ordenados por fecha descendente
-    const gastos = await Gasto.find({ userId, mes: mesActual })
-      .sort({ fecha: -1 })
+    // Construir filtro con validación de cartera
+    const filtro = await construirFiltroCartera(userId, mesActual, carteraId);
+
+    // Obtener últimos 7 gastos (solo de la cartera especificada o sin cartera)
+    const gastos = await Gasto.find(filtro)
+      .sort({ fecha: -1 }) // Más recientes primero
       .limit(7)
       .lean();
 
@@ -105,10 +167,21 @@ export const getGastosRecientes = async (req: AuthRequest, res: Response): Promi
         monto: gasto.monto,
         categoria: gasto.categoria,
         fecha: gasto.fecha instanceof Date ? gasto.fecha.toISOString() : gasto.fecha,
-        mes: gasto.mes
+        mes: gasto.mes,
+        carteraId: gasto.carteraId ? gasto.carteraId.toString() : null
       }))
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Cartera no encontrada o no pertenece al usuario' || 
+        error.message === 'ID de cartera inválido') {
+      res.status(404).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
+    console.error('Error en getGastosRecientes:', error);
     res.status(500).json({
       success: false,
       error: 'Error al obtener gastos recientes'

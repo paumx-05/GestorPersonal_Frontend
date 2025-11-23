@@ -5,6 +5,7 @@ import { Gasto } from '../models/Gasto.model';
 import { Amigo } from '../models/Amigo.model';
 import { MensajeChat } from '../models/MensajeChat.model';
 import { User } from '../models/User.model';
+import { Cartera } from '../models/Cartera.model';
 
 // Obtener todos los gastos de un mes
 export const getGastosByMes = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -18,6 +19,7 @@ export const getGastosByMes = async (req: AuthRequest, res: Response): Promise<v
     }
 
     const { mes } = req.params;
+    const { carteraId } = req.query;
 
     // Normalizar mes a minúsculas para la búsqueda
     const mesNormalizado = mes.toLowerCase().trim();
@@ -32,11 +34,41 @@ export const getGastosByMes = async (req: AuthRequest, res: Response): Promise<v
       });
       return;
     }
-    
-    const gastos = await Gasto.find({ 
-      userId: req.user.userId, 
+
+    // Construir filtro base
+    const filter: any = {
+      userId: req.user.userId,
       mes: mesNormalizado
-    }).sort({ fecha: 1 }).lean(); // Ordenar por fecha ascendente
+    };
+
+    // Agregar filtro de cartera si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId as string)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      // Verificar que la cartera pertenezca al usuario
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+
+      filter.carteraId = carteraId;
+    }
+    
+    const gastos = await Gasto.find(filter).sort({ fecha: 1 }).lean(); // Ordenar por fecha ascendente
 
     res.status(200).json({
       success: true,
@@ -54,6 +86,7 @@ export const getGastosByMes = async (req: AuthRequest, res: Response): Promise<v
           montoDividido: item.montoDividido,
           pagado: item.pagado
         })),
+        carteraId: gasto.carteraId ? gasto.carteraId.toString() : null,
         createdAt: gasto.createdAt instanceof Date ? gasto.createdAt.toISOString() : gasto.createdAt
       }))
     });
@@ -76,7 +109,7 @@ export const createGasto = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const { descripcion, monto, fecha, categoria, mes, dividido } = req.body;
+    const { descripcion, monto, fecha, categoria, mes, dividido, carteraId } = req.body;
 
     // Validar campos requeridos
     if (!descripcion || !monto || !fecha || !categoria || !mes) {
@@ -143,6 +176,30 @@ export const createGasto = async (req: AuthRequest, res: Response): Promise<void
       }
     }
 
+    // Validar carteraId si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+    }
+
     // Crear nuevo gasto
     const nuevoGasto = new Gasto({
       userId: req.user.userId,
@@ -151,7 +208,8 @@ export const createGasto = async (req: AuthRequest, res: Response): Promise<void
       fecha: fechaObj,
       categoria: categoria.trim(),
       mes: mesNormalizado,
-      dividido: divididoNormalizado
+      dividido: divididoNormalizado,
+      carteraId: carteraId || undefined
     });
 
     await nuevoGasto.save();
@@ -213,6 +271,7 @@ export const createGasto = async (req: AuthRequest, res: Response): Promise<void
           montoDividido: item.montoDividido,
           pagado: item.pagado
         })),
+        carteraId: nuevoGasto.carteraId ? nuevoGasto.carteraId.toString() : null,
         createdAt: nuevoGasto.createdAt.toISOString()
       },
       message: 'Gasto creado exitosamente'
@@ -238,7 +297,7 @@ export const updateGasto = async (req: AuthRequest, res: Response): Promise<void
     }
 
     const { id } = req.params;
-    const { descripcion, monto, fecha, categoria, mes, dividido } = req.body;
+    const { descripcion, monto, fecha, categoria, mes, dividido, carteraId } = req.body;
 
     // Buscar gasto
     const gasto = await Gasto.findOne({ _id: id, userId: req.user.userId });
@@ -333,6 +392,36 @@ export const updateGasto = async (req: AuthRequest, res: Response): Promise<void
       }
     }
 
+    // Validar y actualizar carteraId si se proporciona
+    if (carteraId !== undefined) {
+      if (carteraId === null || carteraId === '') {
+        gasto.carteraId = undefined;
+      } else {
+        if (!mongoose.Types.ObjectId.isValid(carteraId)) {
+          res.status(400).json({
+            success: false,
+            error: 'ID de cartera inválido'
+          });
+          return;
+        }
+
+        const cartera = await Cartera.findOne({ 
+          _id: carteraId, 
+          userId: req.user.userId 
+        });
+
+        if (!cartera) {
+          res.status(404).json({
+            success: false,
+            error: 'Cartera no encontrada o no pertenece al usuario'
+          });
+          return;
+        }
+
+        gasto.carteraId = carteraId;
+      }
+    }
+
     await gasto.save();
 
     // Crear o actualizar mensajes automáticos del sistema para amigos que no han pagado
@@ -408,6 +497,7 @@ export const updateGasto = async (req: AuthRequest, res: Response): Promise<void
           montoDividido: item.montoDividido,
           pagado: item.pagado
         })),
+        carteraId: gasto.carteraId ? gasto.carteraId.toString() : null,
         createdAt: gasto.createdAt instanceof Date ? gasto.createdAt.toISOString() : gasto.createdAt
       },
       message: 'Gasto actualizado exitosamente'
@@ -467,6 +557,7 @@ export const getTotalGastosByMes = async (req: AuthRequest, res: Response): Prom
     }
 
     const { mes } = req.params;
+    const { carteraId } = req.query;
 
     // Normalizar mes a minúsculas para la búsqueda
     const mesNormalizado = mes.toLowerCase().trim();
@@ -481,8 +572,40 @@ export const getTotalGastosByMes = async (req: AuthRequest, res: Response): Prom
       });
       return;
     }
+
+    // Construir filtro base
+    const filter: any = {
+      userId: req.user.userId,
+      mes: mesNormalizado
+    };
+
+    // Agregar filtro de cartera si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId as string)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+
+      filter.carteraId = carteraId;
+    }
     
-    const gastos = await Gasto.find({ userId: req.user.userId, mes: mesNormalizado }).lean();
+    const gastos = await Gasto.find(filter).lean();
     const total = gastos.reduce((sum, gasto) => sum + gasto.monto, 0);
 
     res.status(200).json({
@@ -512,6 +635,7 @@ export const getGastosByCategoria = async (req: AuthRequest, res: Response): Pro
     }
 
     const { mes, categoria } = req.params;
+    const { carteraId } = req.query;
 
     // Normalizar mes a minúsculas para la búsqueda
     const mesNormalizado = mes.toLowerCase().trim();
@@ -526,12 +650,41 @@ export const getGastosByCategoria = async (req: AuthRequest, res: Response): Pro
       });
       return;
     }
+
+    // Construir filtro base
+    const filter: any = {
+      userId: req.user.userId,
+      mes: mesNormalizado,
+      categoria
+    };
+
+    // Agregar filtro de cartera si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId as string)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+
+      filter.carteraId = carteraId;
+    }
     
-    const gastos = await Gasto.find({ 
-      userId: req.user.userId, 
-      mes: mesNormalizado, 
-      categoria 
-    }).sort({ fecha: 1 }).lean();
+    const gastos = await Gasto.find(filter).sort({ fecha: 1 }).lean();
 
     const total = gastos.reduce((sum, gasto) => sum + gasto.monto, 0);
 
@@ -551,6 +704,7 @@ export const getGastosByCategoria = async (req: AuthRequest, res: Response): Pro
           montoDividido: item.montoDividido,
           pagado: item.pagado
         })),
+        carteraId: gasto.carteraId ? gasto.carteraId.toString() : null,
         createdAt: gasto.createdAt instanceof Date ? gasto.createdAt.toISOString() : gasto.createdAt
       })),
       total

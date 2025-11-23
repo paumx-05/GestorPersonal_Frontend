@@ -7,6 +7,7 @@ export interface IPresupuesto extends Document {
   monto: number;
   porcentaje?: number;
   totalIngresos: number;
+  carteraId?: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
@@ -42,6 +43,12 @@ const PresupuestoSchema: Schema = new Schema(
       required: [true, 'El total de ingresos es requerido'],
       min: [0, 'El total de ingresos debe ser mayor o igual a 0']
     },
+    carteraId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Cartera',
+      required: false,
+      index: true
+    },
     createdAt: {
       type: Date,
       default: Date.now
@@ -56,6 +63,8 @@ const PresupuestoSchema: Schema = new Schema(
 // Índice único compuesto (un presupuesto por categoría y mes por usuario)
 PresupuestoSchema.index({ userId: 1, mes: 1, categoria: 1 }, { unique: true });
 PresupuestoSchema.index({ userId: 1, mes: 1 });
+PresupuestoSchema.index({ userId: 1, carteraId: 1 }); // Para búsquedas por usuario y cartera
+PresupuestoSchema.index({ userId: 1, mes: 1, carteraId: 1 }); // Para consultas por mes y cartera
 
 export const Presupuesto = mongoose.model<IPresupuesto>('Presupuesto', PresupuestoSchema);
 

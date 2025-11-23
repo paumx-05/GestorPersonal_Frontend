@@ -1,6 +1,8 @@
 import { Response } from 'express';
+import mongoose from 'mongoose';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { Presupuesto } from '../models/Presupuesto.model';
+import { Cartera } from '../models/Cartera.model';
 
 const mesesValidos = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -78,7 +80,7 @@ export const createOrUpdatePresupuesto = async (req: AuthRequest, res: Response)
       return;
     }
 
-    const { mes, categoria, monto, porcentaje, totalIngresos } = req.body;
+    const { mes, categoria, monto, porcentaje, totalIngresos, carteraId } = req.body;
 
     // Validar mes
     if (!mes || !mesesValidos.includes(mes.toLowerCase().trim())) {
@@ -137,6 +139,30 @@ export const createOrUpdatePresupuesto = async (req: AuthRequest, res: Response)
     const mesNormalizado = mes.toLowerCase().trim();
     const categoriaNormalizada = categoria.trim();
 
+    // Validar carteraId si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+    }
+
     // Calcular monto o porcentaje según lo que se envíe
     let montoFinal = monto;
     let porcentajeFinal = porcentaje;
@@ -151,20 +177,32 @@ export const createOrUpdatePresupuesto = async (req: AuthRequest, res: Response)
       montoFinal = (porcentaje / 100) * totalIngresos;
     }
 
+    // Construir filtro de búsqueda
+    const filterBusqueda: any = {
+      userId: req.user.userId,
+      mes: mesNormalizado,
+      categoria: categoriaNormalizada
+    };
+
+    // Si se proporciona carteraId, incluirlo en el filtro
+    if (carteraId) {
+      filterBusqueda.carteraId = carteraId;
+    } else {
+      // Si no se proporciona, buscar presupuestos sin cartera
+      filterBusqueda.carteraId = { $exists: false };
+    }
+
     // Usar findOneAndUpdate con upsert para crear o actualizar
     const presupuesto = await Presupuesto.findOneAndUpdate(
-      { 
-        userId: req.user.userId, 
-        mes: mesNormalizado, 
-        categoria: categoriaNormalizada 
-      },
+      filterBusqueda,
       {
         userId: req.user.userId,
         mes: mesNormalizado,
         categoria: categoriaNormalizada,
         monto: montoFinal,
         porcentaje: porcentajeFinal,
-        totalIngresos
+        totalIngresos,
+        carteraId: carteraId || undefined
       },
       {
         new: true,
@@ -214,7 +252,7 @@ export const updatePresupuesto = async (req: AuthRequest, res: Response): Promis
     }
 
     const { id } = req.params;
-    const { monto, porcentaje, totalIngresos } = req.body;
+    const { monto, porcentaje, totalIngresos, carteraId } = req.body;
 
     // Buscar presupuesto
     const presupuesto = await Presupuesto.findOne({ 
@@ -255,6 +293,36 @@ export const updatePresupuesto = async (req: AuthRequest, res: Response): Promis
         error: 'El monto debe ser mayor o igual a 0'
       });
       return;
+    }
+
+    // Validar y actualizar carteraId si se proporciona
+    if (carteraId !== undefined) {
+      if (carteraId === null || carteraId === '') {
+        presupuesto.carteraId = undefined;
+      } else {
+        if (!mongoose.Types.ObjectId.isValid(carteraId)) {
+          res.status(400).json({
+            success: false,
+            error: 'ID de cartera inválido'
+          });
+          return;
+        }
+
+        const cartera = await Cartera.findOne({ 
+          _id: carteraId, 
+          userId: req.user.userId 
+        });
+
+        if (!cartera) {
+          res.status(404).json({
+            success: false,
+            error: 'Cartera no encontrada o no pertenece al usuario'
+          });
+          return;
+        }
+
+        presupuesto.carteraId = carteraId;
+      }
     }
 
     // Usar totalIngresos del body o del presupuesto existente
@@ -368,6 +436,7 @@ export const getTotalPresupuestosByMes = async (req: AuthRequest, res: Response)
     }
 
     const { mes } = req.params;
+    const { carteraId } = req.query;
     const mesNormalizado = mes.toLowerCase().trim();
 
     // Validar mes
@@ -379,10 +448,39 @@ export const getTotalPresupuestosByMes = async (req: AuthRequest, res: Response)
       return;
     }
 
-    const presupuestos = await Presupuesto.find({ 
-      userId: req.user.userId, 
-      mes: mesNormalizado 
-    }).lean();
+    // Construir filtro base
+    const filter: any = {
+      userId: req.user.userId,
+      mes: mesNormalizado
+    };
+
+    // Agregar filtro de cartera si se proporciona
+    if (carteraId) {
+      if (!mongoose.Types.ObjectId.isValid(carteraId as string)) {
+        res.status(400).json({
+          success: false,
+          error: 'ID de cartera inválido'
+        });
+        return;
+      }
+
+      const cartera = await Cartera.findOne({ 
+        _id: carteraId, 
+        userId: req.user.userId 
+      });
+
+      if (!cartera) {
+        res.status(404).json({
+          success: false,
+          error: 'Cartera no encontrada o no pertenece al usuario'
+        });
+        return;
+      }
+
+      filter.carteraId = carteraId;
+    }
+
+    const presupuestos = await Presupuesto.find(filter).lean();
 
     const total = presupuestos.reduce((sum, presupuesto) => sum + presupuesto.monto, 0);
 

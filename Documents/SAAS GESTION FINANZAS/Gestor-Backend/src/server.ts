@@ -14,6 +14,7 @@ import { notificacionRoutes } from './routes/notificacion.routes';
 import { categoriaRoutes } from './routes/categoria.routes';
 import { presupuestoRoutes } from './routes/presupuesto.routes';
 import { dashboardRoutes } from './routes/dashboard.routes';
+import carteraRoutes from './routes/cartera.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.get('/', (_req, res) => {
       health: '/health',
       auth: '/api/auth',
       users: '/api/users',
+      carteras: '/api/carteras',
       amigos: '/api/amigos',
       gastos: '/api/gastos',
       ingresos: '/api/ingresos',
@@ -54,6 +56,7 @@ app.get('/', (_req, res) => {
 app.use('/api/example', exampleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/carteras', carteraRoutes);
 app.use('/api/amigos', amigoRoutes);
 app.use('/api/gastos', gastoRoutes);
 app.use('/api/ingresos', ingresoRoutes);
