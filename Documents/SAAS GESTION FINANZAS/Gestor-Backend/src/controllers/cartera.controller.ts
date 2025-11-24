@@ -127,7 +127,7 @@ export const createCartera = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const { nombre, descripcion } = req.body;
+    const { nombre, descripcion, saldoInicial, moneda, icono, color } = req.body;
 
     // Validar nombre
     if (!nombre || typeof nombre !== 'string' || nombre.trim().length === 0) {
@@ -241,9 +241,20 @@ export const createCartera = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    // Manejar errores de validación de Mongoose
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((err: any) => err.message);
+      res.status(400).json({
+        success: false,
+        error: errors.join(', ')
+      });
+      return;
+    }
+
     res.status(500).json({
       success: false,
-      error: 'Error al crear cartera'
+      error: 'Error al crear cartera',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
