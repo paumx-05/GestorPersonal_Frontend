@@ -1,0 +1,20 @@
+services:
+  airbnb-backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: airbnb-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - airbnb-network
+
+networks:
+  airbnb-network:
+    driver: bridge
+
