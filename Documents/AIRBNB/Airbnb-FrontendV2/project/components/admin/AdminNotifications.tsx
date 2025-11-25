@@ -1,6 +1,6 @@
 'use client';
 
-import { useNotifications, AppNotification } from '@/context/NotificationsContext';
+import { useNotifications, AppNotification, NotificationType } from '@/context/NotificationsContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -221,28 +221,28 @@ const AdminNotifications = () => {
           
           <div className="text-center">
             <div className="text-2xl font-bold text-yellow-600 mb-1">
-              {notifications.filter(n => n.type === 'warning').length}
+              {notifications.filter(n => n.type === ('warning' as NotificationType)).length}
             </div>
             <div className="text-sm text-gray-600">Advertencias</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600 mb-1">
-              {notifications.filter(n => n.type === 'error').length}
+              {notifications.filter(n => n.type === ('error' as NotificationType)).length}
             </div>
             <div className="text-sm text-gray-600">Errores</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600 mb-1">
-              {notifications.filter(n => n.type === 'success').length}
+              {notifications.filter(n => n.type === ('success' as NotificationType)).length}
             </div>
             <div className="text-sm text-gray-600">Éxitos</div>
           </div>
           
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600 mb-1">
-              {notifications.filter(n => n.type === 'promo').length}
+              {notifications.filter(n => n.type === ('promo' as NotificationType)).length}
             </div>
             <div className="text-sm text-gray-600">Promociones</div>
           </div>

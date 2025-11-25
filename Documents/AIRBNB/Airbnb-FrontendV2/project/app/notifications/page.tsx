@@ -26,7 +26,7 @@ import {
   Loader2
 } from 'lucide-react';
 import NotificationItem from '@/components/notifications/NotificationItem';
-import { AppNotification } from '@/context/NotificationsContext';
+import { AppNotification, NotificationType } from '@/context/NotificationsContext';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -80,11 +80,11 @@ export default function NotificationsPage() {
   const groupedNotifications = {
     unread: notifications.filter(n => !n.isRead),
     read: notifications.filter(n => n.isRead),
-    info: notifications.filter(n => n.type === 'info'),
-    success: notifications.filter(n => n.type === 'success'),
-    warning: notifications.filter(n => n.type === 'warning'),
-    promo: notifications.filter(n => n.type === 'promo'),
-    error: notifications.filter(n => n.type === 'error'),
+    info: notifications.filter(n => n.type === ('info' as NotificationType)),
+    success: notifications.filter(n => n.type === ('success' as NotificationType)),
+    warning: notifications.filter(n => n.type === ('warning' as NotificationType)),
+    promo: notifications.filter(n => n.type === ('promo' as NotificationType)),
+    error: notifications.filter(n => n.type === ('error' as NotificationType)),
   };
 
   // No mostrar nada si no está autenticado (evita flash)
